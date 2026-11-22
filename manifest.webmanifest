@@ -11,7 +11,7 @@
   "lang": "ru",
   "icons": [
     {
-      "src": "./icon.svg",
+      "src": "./icon-cocoa.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
