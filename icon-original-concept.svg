@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Керамическая миска, ложка и пар в форме сердца">
+<defs>
+  <linearGradient id="ceramic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF7EE"/><stop offset=".6" stop-color="#F3D6BA"/><stop offset="1" stop-color="#DCAC85"/></linearGradient>
+  <linearGradient id="steam" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#A85E36"/><stop offset="1" stop-color="#E6AF7F"/></linearGradient>
+  <linearGradient id="spoon" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3F251D"/><stop offset="1" stop-color="#835035"/></linearGradient>
+  <pattern id="grain" width="39" height="33" patternUnits="userSpaceOnUse"><circle cx="7" cy="10" r="1.2" fill="#BC8C68" opacity=".28"/><circle cx="31" cy="27" r="1" fill="#A87656" opacity=".22"/></pattern>
+</defs>
+<!-- Icon uses the same soft cream ground as the approved first concept. -->
+<rect width="512" height="512" rx="110" fill="#FCF8F2"/>
+<ellipse cx="250" cy="410" rx="167" ry="13" fill="#DAAF8C" opacity=".24"/>
+<!-- Warm, hand-drawn heart-shaped steam (the defining feature of concept 1). -->
+<path d="M231 238 C191 186 135 167 156 117 C169 84 201 84 221 108 C233 121 244 143 247 158 C257 121 276 73 308 78 C342 82 350 118 328 148 C310 173 280 186 265 218" fill="none" stroke="url(#steam)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M265 218 C260 233 248 248 241 254" fill="none" stroke="#D89A68" stroke-width="12" stroke-linecap="round"/>
+<!-- Spoon emerges from within the bowl. -->
+<path d="M289 285 L370 172" stroke="url(#spoon)" stroke-width="20" stroke-linecap="round"/>
+<path d="M367 175 C383 147 397 140 406 151 C417 165 391 190 375 193" fill="#70402A"/>
+<!-- Tiny delight marks from original artwork. -->
+<path d="M407 241 L423 224 M417 272 L440 263" stroke="#C27F50" stroke-width="12" stroke-linecap="round"/>
+<!-- Bowl, dark rim and hand painted ceramic glaze. -->
+<ellipse cx="252" cy="286" rx="178" ry="44" fill="#75452E"/>
+<ellipse cx="252" cy="280" rx="164" ry="33" fill="#FFF5E8"/>
+<path d="M75 291 C83 363 142 415 247 420 C352 419 422 360 428 290 C397 303 361 315 253 317 C143 315 102 300 75 291Z" fill="url(#ceramic)" stroke="#75452E" stroke-width="12" stroke-linejoin="round"/>
+<path d="M77 291 C150 325 360 325 428 290" fill="none" stroke="#75452E" stroke-width="12" stroke-linecap="round"/>
+<path d="M96 311 C115 361 151 390 184 396" fill="none" stroke="#BF8B66" stroke-width="8" stroke-linecap="round" opacity=".8"/>
+<path d="M76 291 C83 363 142 415 247 420 C352 419 422 360 428 290 C397 303 361 315 253 317 C143 315 102 300 75 291Z" fill="url(#grain)"/>
+<!-- Ceramic leaf design, not a new brand symbol. -->
+<path d="M253 382 C250 353 255 334 270 314" stroke="#805036" stroke-width="8" stroke-linecap="round" fill="none"/>
+<path d="M256 367 C225 349 206 346 180 350 C200 376 232 382 256 367Z" fill="#AC7755"/>
+<path d="M257 355 C268 325 293 316 328 314 C318 344 292 358 257 355Z" fill="#9F6C4B"/>
+</svg>
