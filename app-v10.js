@@ -16,10 +16,18 @@ function weeksFor(name){const result=[];for(let w=0;w<5;w++){let start=w*7,end=M
 function checkedStatus(w,name){if(w===-1){const weeks=weeksFor(name);return weeks.length>0&&weeks.every(x=>!!checks[checkedKey(x,name)])}return !!checks[checkedKey(w,name)]}
 function toggleChecked(w,name,value){const weeks=w===-1?weeksFor(name):[w];for(const i of weeks)checks[checkedKey(i,name)]=value;save(K.checks,checks)}
 
-function anchorFor(d){const wd=d%7;return wd<=1?d-wd-1:wd<=5?d-wd+2:d}
-function batchDays(anchor){if(anchor<0)return[0,1];if(anchor%7===2)return Array.from({length:4},(_,i)=>anchor+i).filter(x=>x<30);return Array.from({length:3},(_,i)=>anchor+i).filter(x=>x<30)}
-function batchName(a){return a<0?"Воскресенье перед началом меню":a%7===2?"Среда · день "+(a+1):"Воскресенье · день "+(a+1)}
-function batchRecipes(a){const counts=new Map();for(const d of batchDays(a))for(const idx of plan[d].slice(1)){counts.set(idx,(counts.get(idx)||0)+1)}return [...counts].map(([id,n])=>({id,n}))}
+const S=window.PBS_SHIFT;
+function shiftConfig(){return {mode:"2/2",anchor:workSettings.anchor,start:workSettings.start,end:workSettings.end,commute:workSettings.commute}}
+function allBatches(){return S.groups(planStart,shiftConfig(),30)}
+function findBatch(a){return allBatches().find(x=>x.anchor===a)||null}
+function anchorFor(d){return S.groupForDay(d,planStart,shiftConfig(),30)?.anchor??-1}
+function batchDays(a){return findBatch(a)?.targets||[]}
+function batchName(a){const group=findBatch(a),date=group?.date||S.plus(planStart,a);return "Готовка · "+S.label(date)+(a<0?" (до начала меню)":"")}
+function batchRecipes(a){const counts=new Map();for(const d of batchDays(a))for(const id of plan[d].slice(1))counts.set(id,(counts.get(id)||0)+1);return [...counts].map(([id,n])=>({id,n}))}
+function isCookingDay(d){return d>=0&&d<30&&S.isCook(S.plus(planStart,d),shiftConfig())}
+function isWorkingDay(d){return d>=0&&d<30&&S.isWork(S.plus(planStart,d),shiftConfig())}
+function daySchedule(d){if(d<0||d>=30)return"";const w=isWorkingDay(d),time=S.shiftTimes(shiftConfig());return w?"💼 Рабочая смена "+workSettings.start+"–"+workSettings.end+" · выход "+time.leave+" · дома около "+time.arrive+(time.overnight?" (на следующие сутки)":""):"🏡 Выходной"+(isCookingDay(d)?" · готовка и закупка":" · без основной готовки")}
+function batchIngredients(a,category){const tally=new Map();for(const d of batchDays(a))for(const id of plan[d].slice(1))for(const [name,q]of R[id].ingredients){if(category&&buyingCategory(name)!==category)continue;tally.set(name,(tally.get(name)||0)+q*settings.people)}return tally}
 
 function load(key,fallback){try{let v=JSON.parse(localStorage.getItem(key));return v===null?fallback:v}catch{return fallback}}
 const savedPlan=load(K.plan,null);const isOldDefault=Array.isArray(savedPlan)&&savedPlan.length===30&&savedPlan.every((row,i)=>JSON.stringify(row)===JSON.stringify(PREVIOUS_DEFAULT[i]));const fromOld=isOldDefault?defaults:(savedPlan||defaults);let plan=Array.isArray(fromOld)&&fromOld.length===30?fromOld.map((x,i)=>Array.isArray(x)&&x.length===3?x.map((v,j)=>Number.isInteger(v)&&R[v]?v:defaults[i][j]):[...defaults[i]]):defaults.map(x=>[...x]);
@@ -39,6 +47,17 @@ const localISO=dt=>{const d=new Date(dt);d.setMinutes(d.getMinutes()-d.getTimezo
 let planStart=load("pbs-plan-start",null);if(!/^\d{4}-\d{2}-\d{2}$/.test(planStart||"")){const monday=new Date();monday.setDate(monday.getDate()-((monday.getDay()+6)%7));planStart=localISO(monday);try{localStorage.setItem("pbs-plan-start",JSON.stringify(planStart))}catch(e){}}
 function planDayOffset(offset=0){const now=new Date(),base=new Date(planStart+"T12:00:00");now.setHours(12,0,0,0);return Math.round((now-base)/86400000)+offset}
 const humanDate=d=>new Intl.DateTimeFormat("ru-RU",{day:"numeric",month:"long",weekday:"long"}).format(d);
+const WORK_KEY="pbs-work-schedule-v1";
+const savedWork=load(WORK_KEY,{});
+let workSettings={
+ mode:"2/2",anchor:S.parseDate(savedWork.anchor)?savedWork.anchor:localISO(new Date()),
+ start:/^\d{2}:\d{2}$/.test(savedWork.start||"")?savedWork.start:"09:00",
+ end:/^\d{2}:\d{2}$/.test(savedWork.end||"")?savedWork.end:"21:00",
+ commute:Number.isFinite(Number(savedWork.commute))?Math.max(0,Math.min(240,Number(savedWork.commute))):40,
+ confirmed:savedWork.confirmed===true
+};
+let calendarSelected=0;
+
 
 const save=(key,val)=>{try{localStorage.setItem(key,JSON.stringify(val))}catch(e){console.warn("Не удалось сохранить:",e)}},money=n=>Math.round(n).toLocaleString("ru-RU")+" ₽",plural=n=>n===1?"человек":n>=2&&n<=4?"человека":"человек";
 const cost=r=>r.ingredients.reduce((sum,[name,q,unit])=>sum+q*ingredientPrice(name,unit),0),monthTotal=()=>plan.flat().reduce((sum,i)=>sum+cost(R[i]),0)*settings.people;
@@ -49,9 +68,35 @@ function photo(r,cls="imagebox"){const wrap=el("div",cls);const fall=el("span","
 function goto(next){tab=next;render();window.scrollTo({top:0,behavior:"smooth"})}
 function chips(container,choices,active,handler){container.replaceChildren(...choices.map(([id,label])=>button(label,()=>handler(id),"pill"+(active===id?" active":""))))}
 function recipeCard(r,compact=false){const card=el("article",compact?"recipe-tile":"card meal-card");card.append(photo(r));const info=el("div",compact?"tile-body":"meal-info");info.append(el("div","label",r.category+" · "+r.minutes+" мин · ~"+money(cost(r)*settings.people)),el("h3","",r.name));let actions=el("div","button-row");actions.append(button("Рецепт",()=>openRecipe(r.id),"primary"));const favorite=button(favorites.includes(r.id)?"♥":"♡",()=>{favorites=favorites.includes(r.id)?favorites.filter(i=>i!==r.id):[...favorites,r.id];save(K.favorites,favorites);render()},"");favorite.title="В избранное";favorite.setAttribute("aria-label",favorite.title);if(compact){actions.append(button("В меню",()=>selectRecipe(r.id)));actions.append(favorite)}else{actions.append(button("Заменить",()=>{editSlot=R[r.id].category;goto("recipes")}));actions.append(favorite)}info.append(actions);card.append(info);return card}
-function renderBatch(){const a=anchorFor(day),target=$("#batch-info");target.replaceChildren();const head=el("h3","","🍱 Готовим заранее");target.append(head,el("p","subtle",a===-1?"На первые два дня меню приготовь обеды и ужины в предыдущее воскресенье.":"Эти блюда готовятся в "+(a%7===2?"среду":"воскресенье")+" сразу на несколько порций."));for(const {id,n} of batchRecipes(a)){const row=el("div","countline");row.append(el("span","",R[id].name),el("strong","",n*settings.people+" порц."));target.append(row)}const badge=el("p","note",a%7===2?"Порции на конец недели охлади и заморозь сразу после приготовления. В холодильнике готовые блюда обычно хранят не более 3–4 дней; рис лучше быстро охлаждать и использовать раньше либо замораживать.":"Блюда готовятся сразу на несколько дней. Быстро охлади, храни в закрытых контейнерах в холодильнике, а запасные порции заморозь.");target.append(badge)}
-function renderPrep(){const container=$("#prep-week");container.replaceChildren();const a=week*7-1;const anchors=[a,week*7+2,week*7+6].filter(x=>x<30);for(const x of anchors){const box=el("div","card content-card");box.append(el("h3","",batchName(x)));for(const {id,n} of batchRecipes(x)){const item=el("div","countline");item.append(el("span","",R[id].name),el("strong","",n*settings.people+" порц."));box.append(item)}container.append(box)}}
-function renderMenu(){const weeks=$("#weeks");chips(weeks,Array.from({length:5},(_,i)=>[i,"Неделя "+(i+1)]),week,v=>{week=v;day=v*7;renderMenu()});chips($("#days"),Array.from({length:Math.min(7,30-week*7)},(_,i)=>[week*7+i,"День "+(week*7+i+1)]),day,v=>{day=v;renderMenu()});$("#daytitle").textContent="День "+(day+1);$("#daycost").textContent="~"+money(plan[day].reduce((s,i)=>s+cost(R[i]),0)*settings.people)+" на "+settings.people+" "+plural(settings.people);$("#meals").replaceChildren(...plan[day].map(i=>recipeCard(R[i])));$("#prep-day-note").textContent=day%7<=1?"🧊 Обед и ужин готовы с воскресенья. Осталось разогреть.":day%7===2?"🍳 Сегодня день большой готовки: сразу на несколько дней.":day%7===6?"🍳 Воскресная готовка — подготовь еду на сегодня, понедельник и вторник.":"🥡 Используй готовые порции. Свежие овощи добавляй перед подачей.";renderBatch();renderPrep()}
+function renderBatch(){
+const a=anchorFor(day),box=$("#batch-info"),g=findBatch(a);
+box.replaceChildren();box.append(el("h3","","🍱 Готовка по графику 2/2"));
+if(!g){box.append(el("p","subtle","Для этого дня нет запланированной партии."));return}
+box.append(el("p","subtle","Приготовить "+S.label(g.date)+" в выходной, на "+g.targets.length+" дня меню. "+(g.external?"Это дата до начала выбранных 30 дней.":"Включая дни будущих смен.")));
+for(const {id,n}of batchRecipes(a)){
+ const row=el("div","countline");row.append(el("span","",R[id].name),el("strong","",n*settings.people+" порц."));box.append(row)
+}
+box.append(el("p","note","Готовые блюда быстро охлади. Порции на третий и четвёртый день лучше сразу заморозить; рис охлаждай особенно быстро. Разогревай до горячего состояния."))
+}
+function renderPrep(){
+const container=$("#prep-week");container.replaceChildren();const first=week*7,last=Math.min(first+7,30);
+const groups=allBatches().filter(g=>g.targets.some(d=>d>=first&&d<last));
+for(const g of groups){
+ const box=el("div","card content-card");
+ box.append(el("h3","",batchName(g.anchor)));
+ box.append(el("p","subtle","Порции на дни "+g.targets.map(d=>d+1).join(", ")+(g.anchor<0?". Приготовление до начала месячного плана.":".")));
+ for(const {id,n}of batchRecipes(g.anchor)){
+  const row=el("div","countline");row.append(el("span","",R[id].name),el("strong","",n*settings.people+" порц."));box.append(row)
+ }
+ const proteins=batchIngredients(g.anchor,"prep");
+ if(proteins.size){
+  const p=el("p","subtle","К этой готовке купить: "+[...proteins].map(([name,qty])=>name+" "+Math.round(qty)+" г").join(", "));box.append(p)
+ }
+ container.append(box)
+}
+}
+
+function renderMenu(){const weeks=$("#weeks");chips(weeks,Array.from({length:5},(_,i)=>[i,"Неделя "+(i+1)]),week,v=>{week=v;day=v*7;renderMenu()});chips($("#days"),Array.from({length:Math.min(7,30-week*7)},(_,i)=>[week*7+i,"День "+(week*7+i+1)]),day,v=>{day=v;renderMenu()});$("#daytitle").textContent="День "+(day+1);$("#daycost").textContent="~"+money(plan[day].reduce((s,i)=>s+cost(R[i]),0)*settings.people)+" на "+settings.people+" "+plural(settings.people);$("#meals").replaceChildren(...plan[day].map(i=>recipeCard(R[i])));$("#prep-day-note").textContent=daySchedule(day)+(isCookingDay(day)?" · Готовь сразу на несколько смен.":" · Используй заранее подготовленные порции.");$("#menu-shift-note").textContent=workSettings.confirmed?"Рабочий график учтён в плане и списке закупок.":"Это предварительный график. Подтверди дату начала цикла в настройках.";renderBatch();renderPrep()}
 function renderHome(){
 const now=new Date(),index=planDayOffset(),tom=planDayOffset(1),inRange=index>=0&&index<30;
 $("#header-date").textContent=new Intl.DateTimeFormat("ru-RU",{day:"numeric",month:"short"}).format(now);
