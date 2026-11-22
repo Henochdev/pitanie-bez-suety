@@ -135,7 +135,7 @@ $("#emptyshopping").hidden=entries.length>0;renderPurchaseGuide()}
 function renderSettings(){ $("#plan-start").value=planStart; $("#people").value=settings.people;$("#budget").value=settings.budget;$("#settings-total").textContent="На домашнюю еду: "+money(Math.max(0,settings.budget-EXTERNAL_FOOD))+" (остальное: доставка 3 × 1 200 ₽, кафе 2 × 1 300 ₽). Примерная стоимость текущего домашнего меню: "+money(monthTotal());$("#install-instructions").textContent=/iPad|iPhone|iPod/.test(navigator.userAgent)?"Открой приложение в Safari → «…» → «Поделиться» → «На экран Домой».":"Открой сайт в Safari на iPhone или в Chrome на Android и выбери добавление на главный экран."}
 function render(){ $$(".tab").forEach(b=>{const yes=b.dataset.tab===tab;b.classList.toggle("active",yes);b.setAttribute("aria-selected",String(yes))});$$(".screen").forEach(s=>s.hidden=s.id!==tab);if(tab==="home")renderHome();if(tab==="menu")renderMenu();if(tab==="recipes")renderCatalog();if(tab==="shop")renderShop();if(tab==="settings")renderSettings();if(tab==="analytics")window.PBS_ANALYTICS?.render()}
 $$(".tab").forEach(b=>b.addEventListener("click",()=>{editSlot=null;goto(b.dataset.tab)}));
-const LOGO_KEY="pbs-personal-logo-v1",DEFAULT_LOGO="./icon-original-concept.svg";
+const LOGO_KEY="pbs-personal-logo-v1",DEFAULT_LOGO="./icon-exact-photo.svg";
 function paintLogo(src){
   document.querySelectorAll(".brand-glyph").forEach(image=>{image.src=src});
   $("#logo-preview-img").src=src;
