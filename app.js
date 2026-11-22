@@ -15,7 +15,11 @@ function batchRecipes(a){const counts=new Map();for(const d of batchDays(a))for(
 
 function load(key,fallback){try{let v=JSON.parse(localStorage.getItem(key));return v===null?fallback:v}catch{return fallback}}
 const savedPlan=load(K.plan,null);const isOldDefault=Array.isArray(savedPlan)&&savedPlan.length===30&&savedPlan.every((row,i)=>JSON.stringify(row)===JSON.stringify(PREVIOUS_DEFAULT[i]));const fromOld=isOldDefault?defaults:(savedPlan||defaults);let plan=Array.isArray(fromOld)&&fromOld.length===30?fromOld.map((x,i)=>Array.isArray(x)&&x.length===3?x.map((v,j)=>Number.isInteger(v)&&R[v]?v:defaults[i][j]):[...defaults[i]]):defaults.map(x=>[...x]);
-let settings={people:1,budget:25200,...load(K.settings,{})};settings.people=Math.min(12,Math.max(1,parseInt(settings.people,10)||1));settings.budget=Math.max(1,parseInt(settings.budget,10)||25200);
+const savedSettings=load(K.settings,{});let settings={people:1,budget:25200,...savedSettings};
+if(savedSettings&&savedSettings.people===3&&savedSettings.budget===25200&&!localStorage.getItem("pbs-batch-defaults-migrated")){
+  settings.people=1;try{localStorage.setItem("pbs-batch-defaults-migrated","yes");localStorage.setItem(K.settings,JSON.stringify(settings))}catch(e){}
+}
+settings.people=Math.min(12,Math.max(1,parseInt(settings.people,10)||1));settings.budget=Math.max(1,parseInt(settings.budget,10)||25200);
 let checks=load(K.checks,{});if(!checks||typeof checks!=="object")checks={};let favorites=load(K.favorites,[]);if(!Array.isArray(favorites))favorites=[];
 let day=0,week=0,scope=0,tab="menu",category="Все",onlyFavorites=false,editSlot=null;
 const save=(key,val)=>{try{localStorage.setItem(key,JSON.stringify(val))}catch(e){console.warn("Не удалось сохранить:",e)}},money=n=>Math.round(n).toLocaleString("ru-RU")+" ₽",plural=n=>n===1?"человек":n>=2&&n<=4?"человека":"человек";
@@ -41,6 +45,7 @@ $("#modal-image").replaceWith(photo(r,"imagebox detail-photo"));$("#recipe-modal
 $("#modal-steps").replaceChildren(...r.steps.map(s=>el("li","",s)));
 $("#recipe-intro").textContent=r.description||"";
 $("#recipe-tips").textContent=r.tips||"";
+$("#photo-context").textContent=r.photo?(r.photoNote||"Фото блюда носит иллюстративный характер.")+(r.photoCredit?" · Фото: "+r.photoCredit:""):"Фотография пока не подобрана. Показан значок блюда.";
 function renderAmounts(){const servings=multiplier*settings.people;
 $("#modal-meta").replaceChildren(...[r.category,r.minutes+" мин","~"+money(cost(r)*servings)+" · "+servings+" порц."].map(x=>el("span","",x)));
 $("#modal-ingredients").replaceChildren(...r.ingredients.map(([name,q])=>{const x=el("div","ingredient-row");x.append(el("span","",name),el("strong","",qty(name,q*servings)+" "+unit(name)));return x}));
