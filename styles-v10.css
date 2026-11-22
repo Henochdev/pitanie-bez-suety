@@ -186,3 +186,23 @@ dialog{background:#fffaf5;color:#49342a}
   object-fit:contain!important;object-position:center!important;
   border-radius:inherit;
 }
+
+/* Local user-selected JPEG/PNG logo — fixed safe sizing */
+.logo-upload-layout{display:flex;gap:16px;align-items:flex-start}
+.logo-preview{flex:0 0 100px;width:100px;height:100px;border-radius:22px;background:#FCF8F2;border:1px solid #E9DACB;overflow:hidden;display:flex;justify-content:center;align-items:center}
+.logo-preview img{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center!important}
+.logo-upload-text{flex:1;min-width:0}
+.logo-upload-text h3{margin:0 0 5px}
+.logo-upload-text p{margin:5px 0 10px}
+.logo-file-label{display:inline-flex;align-items:center;justify-content:center;padding:11px 13px;background:#684431;color:#FFF8EE;border-radius:13px;font-weight:700;font-size:13px;cursor:pointer}
+.logo-hidden-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%)}
+.logo-reset{margin-top:8px;background:#F2E7DC;color:#624331;font-size:12px}
+.brand-mark,.home-spark,.tabs .home-nav .center-symbol{position:relative;flex-shrink:0}
+.brand-mark img.brand-glyph,.home-spark img.brand-glyph,.center-symbol img.brand-glyph{
+  display:block!important;position:static!important;inset:auto!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;
+  max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;object-position:center!important;
+}
+@media(max-width:390px){.logo-upload-layout{gap:11px}.logo-preview{flex-basis:78px;width:78px;height:78px}}
