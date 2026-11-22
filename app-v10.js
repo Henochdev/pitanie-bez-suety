@@ -264,6 +264,38 @@ $("#copy-app-link").addEventListener("click",async()=>{const url="https://henoch
 $("#settings-open").addEventListener("click",()=>goto("settings"));
 $("#home-menu-link").addEventListener("click",()=>{let i=planDayOffset();if(i>=0&&i<30){day=i;week=Math.floor(i/7)}goto("menu")});
 $("#search").addEventListener("input",renderCatalog);$("#favfilter").addEventListener("click",()=>{onlyFavorites=!onlyFavorites;renderCatalog()});$("#modal-close").addEventListener("click",()=>$("#recipe-modal").close());$("#recipe-modal").addEventListener("click",e=>{if(e.target.id==="recipe-modal")e.currentTarget.close()});
+function rebuildMenuForWork(){
+ const grouped=plan.map(row=>[...row]);
+ for(const g of allBatches()){
+  const days=g.targets;
+  if(!days.length)continue;
+  const cut=Math.ceil(days.length/2);
+  const a=plan[days[0]],b=plan[days[cut]]||a;
+  days.forEach((d,index)=>{
+    grouped[d][1]=index<cut?a[1]:b[1];
+    grouped[d][2]=index<cut?a[2]:b[2];
+  });
+ }
+ return grouped;
+}
+$("#build-work-menu").addEventListener("click",()=>{
+ if(!workSettings.confirmed){alert("Сначала проверь и сохрани дату первого рабочего дня.");return}
+ if(!confirm("Составить меню под 2/2? Обеды и ужины будут повторяться по два дня, а готовка сгруппируется в выходные. Текущее меню можно будет вернуть."))return;
+ save("pbs-plan-before-work-batching",plan.map(row=>[...row]));
+ plan=rebuildMenuForWork();save(K.plan,plan);
+ $("#work-save-status").textContent="✓ Меню перестроено под смены. Закупки пересчитаны. Прежний вариант можно вернуть.";
+ renderWorkCalendar();
+});
+$("#restore-work-menu").addEventListener("click",()=>{
+ const backup=load("pbs-plan-before-work-batching",null);
+ if(!Array.isArray(backup)||backup.length!==30){alert("Сохранённой предыдущей версии меню пока нет.");return}
+ if(!confirm("Вернуть обеды и ужины из меню до группировки под смены?"))return;
+ plan=backup.map((row,i)=>Array.isArray(row)&&row.length===3?[...row]:[...defaults[i]]);
+ save(K.plan,plan);
+ try{localStorage.removeItem("pbs-plan-before-work-batching")}catch(e){}
+ $("#work-save-status").textContent="✓ Прежнее меню восстановлено. График работы сохранён.";
+ renderWorkCalendar();
+});
 $("#save-work").addEventListener("click",()=>{
  const cfg={mode:"2/2",anchor:$("#work-first").value,start:$("#work-start").value,end:$("#work-end").value,commute:Number($("#work-commute").value),confirmed:true};
  if(!S.validate(cfg)){alert("Проверь дату первого рабочего дня, часы смены и дорогу (0–240 минут). Начало и конец смены не должны совпадать.");return}
