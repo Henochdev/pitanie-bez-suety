@@ -163,10 +163,10 @@ const fresh=el("details","card content-card");fresh.open=true;fresh.append(el("s
 fresh.append(el("p","subtle",scope<0?"Ниже объёмы для каждой недели. Овощи, фрукты, молочное и хлеб не стоит покупать на весь месяц без подходящего хранения.":"Ниже объёмы только выбранной недели. Скоропортящиеся позиции при необходимости докупай ближе к употреблению."));
 if(scope<0){for(let w=0;w<5;w++){const first=w*7,last=Math.min(30,first+7),period=el("details","");period.append(el("summary","","Неделя "+(w+1)+" · дни "+(first+1)+"–"+last));addPurchaseLines(period,aggregateIngredients(monthDays.slice(first,last),"fresh"));fresh.append(period)}}else addPurchaseLines(fresh,aggregateIngredients(days,"fresh"));container.append(fresh);
 const prep=el("details","card content-card");prep.open=true;prep.append(el("summary","","🍗 Мясо и рыба — к дням готовки"));
-prep.append(el("p","subtle","Для воскресной и средовой готовки. Охлаждённую птицу обычно используют за 1–2 суток; при ранней покупке сразу замораживай. Размораживай в холодильнике, не на столе."));
-const anchors=[-1,...monthDays.filter(d=>d%7===2||d%7===6)];
+prep.append(el("p","subtle","Покупай охлаждённые мясо и рыбу в выходной, на который приложение назначило готовку. Если купил заранее, заморозь и размораживай в холодильнике."));
+const anchors=allBatches().map(g=>g.anchor);
 const relevant=anchors.filter(a=>{const targets=batchDays(a);return scope<0||targets.some(d=>d>=weekStart&&d<weekEnd)||a>=weekStart&&a<weekEnd});
-for(const anchor of relevant){const amounts=new Map();for(const d of batchDays(anchor)){for(const recipeId of plan[d].slice(1)){for(const [name,amount]of R[recipeId].ingredients){if(!COOKING_DAY.has(name))continue;amounts.set(name,(amounts.get(name)||0)+amount*settings.people)}}}
+for(const anchor of relevant){const amounts=batchIngredients(anchor,"prep");
 if(!amounts.size)continue;const batch=el("details","");batch.append(el("summary","",batchName(anchor)));addPurchaseLines(batch,amounts);prep.append(batch)}
 container.append(prep);
 container.append(el("p","note","План закупок — рекомендация, не гарантия сохранности продуктов: ориентируйся на срок годности, температуру холодильника, размер упаковки и то, что уже есть дома. Готовые порции охлаждай быстро, часть сразу замораживай."));
@@ -182,7 +182,37 @@ row.append(label,el("strong","",money(price)));const action=button("Записа
 function updateProgress(){const marked=entries.filter(([name])=>checkedStatus(scope,name)).length;$("#checkedcount").textContent="Куплено "+marked+" из "+entries.length}
 updateProgress();
 $("#emptyshopping").hidden=entries.length>0;renderPurchaseGuide()}
-function renderSettings(){ $("#plan-start").value=planStart; $("#people").value=settings.people;$("#budget").value=settings.budget;$("#settings-total").textContent="На домашнюю еду: "+money(Math.max(0,settings.budget-EXTERNAL_FOOD))+" (остальное: доставка 3 × 1 200 ₽, кафе 2 × 1 300 ₽). Примерная стоимость текущего домашнего меню: "+money(monthTotal());$("#install-instructions").textContent=/iPad|iPhone|iPod/.test(navigator.userAgent)?"Открой приложение в Safari → «…» → «Поделиться» → «На экран Домой».":"Открой сайт в Safari на iPhone или в Chrome на Android и выбери добавление на главный экран."}
+function renderWorkCalendar(){
+const container=$("#work-calendar"),detail=$("#work-calendar-detail");container.replaceChildren();
+const times=S.shiftTimes(shiftConfig());
+for(let d=0;d<30;d++){
+ const date=S.plus(planStart,d),work=isWorkingDay(d),cook=isCookingDay(d);
+ const b=button(" ",()=>{calendarSelected=d;renderWorkCalendar()},"shift-day"+(work?" work":" off")+(cook?" cook":"")+(calendarSelected===d?" chosen":""));
+ b.replaceChildren(el("span","shift-date",S.label(date).split(" ").slice(0,2).join(" ")),el("strong","",work?"Работа":cook?"Готовка":"Выходной"));
+ b.setAttribute("aria-label",S.label(date)+", "+(work?"рабочая смена":cook?"готовка":"выходной"));
+ b.setAttribute("aria-pressed",String(calendarSelected===d));container.append(b)
+}
+const date=S.plus(planStart,calendarSelected),g=S.groupForDay(calendarSelected,planStart,shiftConfig(),30);
+detail.replaceChildren(el("h3","",S.label(date)));
+detail.append(el("p","",daySchedule(calendarSelected)));
+if(isWorkingDay(calendarSelected)&&times){detail.append(el("p","subtle","Дорога: 40 минут задаются в настройках (сейчас "+workSettings.commute+" мин в одну сторону). Сбор контейнера планируй перед выходом."))}
+if(isCookingDay(calendarSelected)){
+ const recipes=batchRecipes(calendarSelected),price=recipes.reduce((a,x)=>a+cost(R[x.id])*x.n*settings.people,0);
+ detail.append(el("p","shift-strong","🍳 Приготовить "+recipes.reduce((a,x)=>a+x.n,0)*settings.people+" порций · примерно "+money(price)));
+ for(const x of recipes){const row=el("div","countline");row.append(el("span","",R[x.id].name),el("strong","",x.n*settings.people+" порц."));detail.append(row)}
+ const proteins=batchIngredients(calendarSelected,"prep");
+ if(proteins.size)detail.append(el("p","subtle","Перед готовкой купить: "+[...proteins].map(([name,qty])=>name+" "+Math.round(qty)+" г").join(", ")));
+}else if(g)detail.append(el("p","subtle","Эти обеды и ужины запланированы к готовке "+S.label(g.date)+(g.anchor<0?" до начала меню":"")+"."));
+detail.append(button("Посмотреть меню этого дня",()=>{day=calendarSelected;week=Math.floor(day/7);goto("menu")},"primary"));
+}
+function renderSettings(){
+$("#work-first").value=workSettings.anchor;
+$("#work-start").value=workSettings.start;
+$("#work-end").value=workSettings.end;
+$("#work-commute").value=workSettings.commute;
+$("#work-save-status").textContent=workSettings.confirmed?"✓ График подтверждён, готовка и закупки пересчитаны.":"⚠ Дата первого рабочего дня пока примерная. Подтверди её для точного календаря.";
+calendarSelected=Math.max(0,Math.min(calendarSelected,29));renderWorkCalendar();
+$("#plan-start").value=planStart; $("#people").value=settings.people;$("#budget").value=settings.budget;$("#settings-total").textContent="На домашнюю еду: "+money(Math.max(0,settings.budget-EXTERNAL_FOOD))+" (остальное: доставка 3 × 1 200 ₽, кафе 2 × 1 300 ₽). Примерная стоимость текущего домашнего меню: "+money(monthTotal());$("#install-instructions").textContent=/iPad|iPhone|iPod/.test(navigator.userAgent)?"Открой приложение в Safari → «…» → «Поделиться» → «На экран Домой».":"Открой сайт в Safari на iPhone или в Chrome на Android и выбери добавление на главный экран."}
 function render(){ $$(".tab").forEach(b=>{const yes=b.dataset.tab===tab;b.classList.toggle("active",yes);b.setAttribute("aria-selected",String(yes))});$$(".screen").forEach(s=>s.hidden=s.id!==tab);if(tab==="home")renderHome();if(tab==="menu")renderMenu();if(tab==="recipes")renderCatalog();if(tab==="shop")renderShop();if(tab==="settings")renderSettings();if(tab==="analytics")window.PBS_ANALYTICS?.render()}
 $$(".tab").forEach(b=>b.addEventListener("click",()=>{editSlot=null;goto(b.dataset.tab)}));
 const LOGO_KEY="pbs-personal-logo-v1",DEFAULT_LOGO="./icon-exact-photo.svg";
@@ -234,6 +264,13 @@ $("#copy-app-link").addEventListener("click",async()=>{const url="https://henoch
 $("#settings-open").addEventListener("click",()=>goto("settings"));
 $("#home-menu-link").addEventListener("click",()=>{let i=planDayOffset();if(i>=0&&i<30){day=i;week=Math.floor(i/7)}goto("menu")});
 $("#search").addEventListener("input",renderCatalog);$("#favfilter").addEventListener("click",()=>{onlyFavorites=!onlyFavorites;renderCatalog()});$("#modal-close").addEventListener("click",()=>$("#recipe-modal").close());$("#recipe-modal").addEventListener("click",e=>{if(e.target.id==="recipe-modal")e.currentTarget.close()});
+$("#save-work").addEventListener("click",()=>{
+ const cfg={mode:"2/2",anchor:$("#work-first").value,start:$("#work-start").value,end:$("#work-end").value,commute:Number($("#work-commute").value),confirmed:true};
+ if(!S.validate(cfg)){alert("Проверь дату первого рабочего дня, часы смены и дорогу (0–240 минут). Начало и конец смены не должны совпадать.");return}
+ workSettings=cfg;save(WORK_KEY,workSettings);
+ $("#work-save-status").textContent="✓ Сохранено. Календарь, дни готовки и закупки пересчитаны.";
+ renderWorkCalendar();
+});
 $("#save-settings").addEventListener("click",()=>{const people=Number($("#people").value),budget=Number($("#budget").value);if(!Number.isInteger(people)||people<1||people>12||!Number.isFinite(budget)||budget<1){alert("Укажи от 1 до 12 человек и бюджет больше нуля.");return}settings={people,budget:Math.round(budget)};save(K.settings,settings);
 const date=$("#plan-start").value;if(/^\d{4}-\d{2}-\d{2}$/.test(date)){const d=new Date(date+"T12:00:00");if(d.getDay()!==1){alert("Выбери понедельник: недельный план готовки построен с понедельника по воскресенье.");return}planStart=date;save("pbs-plan-start",planStart)}
 render();$("#saved").textContent="✓ Настройки сохранены"});
