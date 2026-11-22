@@ -1,0 +1,20 @@
+{
+  "id": "/pitanie-bez-suety/",
+  "name": "Питание без суеты",
+  "short_name": "Питание",
+  "description": "Меню на месяц, пошаговые рецепты и список покупок",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f7f3",
+  "theme_color": "#e6f0dd",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
