@@ -135,6 +135,50 @@ $("#emptyshopping").hidden=entries.length>0;renderPurchaseGuide()}
 function renderSettings(){ $("#plan-start").value=planStart; $("#people").value=settings.people;$("#budget").value=settings.budget;$("#settings-total").textContent="На домашнюю еду: "+money(Math.max(0,settings.budget-EXTERNAL_FOOD))+" (остальное: доставка 3 × 1 200 ₽, кафе 2 × 1 300 ₽). Примерная стоимость текущего домашнего меню: "+money(monthTotal());$("#install-instructions").textContent=/iPad|iPhone|iPod/.test(navigator.userAgent)?"Открой приложение в Safari → «…» → «Поделиться» → «На экран Домой».":"Открой сайт в Safari на iPhone или в Chrome на Android и выбери добавление на главный экран."}
 function render(){ $$(".tab").forEach(b=>{const yes=b.dataset.tab===tab;b.classList.toggle("active",yes);b.setAttribute("aria-selected",String(yes))});$$(".screen").forEach(s=>s.hidden=s.id!==tab);if(tab==="home")renderHome();if(tab==="menu")renderMenu();if(tab==="recipes")renderCatalog();if(tab==="shop")renderShop();if(tab==="settings")renderSettings();if(tab==="analytics")window.PBS_ANALYTICS?.render()}
 $$(".tab").forEach(b=>b.addEventListener("click",()=>{editSlot=null;goto(b.dataset.tab)}));
+const LOGO_KEY="pbs-personal-logo-v1",DEFAULT_LOGO="./icon-original-concept.svg";
+function paintLogo(src){
+  document.querySelectorAll(".brand-glyph").forEach(image=>{image.src=src});
+  $("#logo-preview-img").src=src;
+}
+function loadPersonalLogo(){
+  try{const saved=localStorage.getItem(LOGO_KEY);if(saved&&saved.startsWith("data:image/"))paintLogo(saved)}catch(e){}
+}
+$("#logo-file-input").addEventListener("change",function(){
+  const file=this.files&&this.files[0],status=$("#logo-upload-status");
+  if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){status.textContent="Выбери JPEG, PNG или WebP.";return}
+  if(file.size>12*1024*1024){status.textContent="Файл слишком большой. Выбери изображение до 12 МБ.";return}
+  const reader=new FileReader();
+  reader.onerror=()=>{status.textContent="Не удалось прочитать изображение."};
+  reader.onload=()=>{
+    const photo=new Image();
+    photo.onerror=()=>{status.textContent="Не удалось открыть изображение."};
+    photo.onload=()=>{
+      try{
+        const canvas=document.createElement("canvas");canvas.width=512;canvas.height=512;
+        const ctx=canvas.getContext("2d");if(!ctx)throw Error("No canvas context");
+        ctx.fillStyle="#FCF8F2";ctx.fillRect(0,0,512,512);
+        const factor=Math.min(480/photo.width,480/photo.height);
+        const width=photo.width*factor,height=photo.height*factor;
+        ctx.imageSmoothingQuality="high";
+        ctx.drawImage(photo,(512-width)/2,(512-height)/2,width,height);
+        const image=canvas.toDataURL("image/jpeg",0.84);
+        localStorage.setItem(LOGO_KEY,image);
+        paintLogo(image);
+        status.textContent="✓ Логотип обновлён и сохранён на этом iPhone.";
+      }catch(e){status.textContent="Не удалось сохранить логотип. Попробуй изображение меньшего размера."}
+    };
+    photo.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+$("#logo-reset").addEventListener("click",()=>{
+  try{localStorage.removeItem(LOGO_KEY)}catch(e){}
+  paintLogo(DEFAULT_LOGO);
+  $("#logo-file-input").value="";
+  $("#logo-upload-status").textContent="Стандартный логотип восстановлен.";
+});
+loadPersonalLogo();
 $("#brand-home").addEventListener("click",()=>goto("home"));
 $("#copy-app-link").addEventListener("click",async()=>{const url="https://henochdev.github.io/pitanie-bez-suety/";try{await navigator.clipboard.writeText(url);const button=$("#copy-app-link");button.textContent="✓ Адрес скопирован";}catch(e){window.prompt("Скопируй ссылку и открой в Safari:",url)}});
 $("#settings-open").addEventListener("click",()=>goto("settings"));
