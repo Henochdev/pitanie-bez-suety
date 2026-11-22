@@ -154,3 +154,17 @@ dialog{background:#fffaf5;color:#49342a}
 .home-focus .focus-content h2{color:#FFF9F3}
 .tabs .nav-icon,.tabs .emoji{color:#927967}
 .tabs button:not(.home-nav).active .nav-icon{color:#8F6244}
+
+/* v16 — custom illustrated icons, same ceramic palette as app logo */
+.tabs .artisan-icon{display:block;width:36px;height:36px;flex:none;overflow:visible;transition:transform .18s ease}
+.tabs button:not(.home-nav){gap:2px}
+.tabs button:not(.home-nav).active .artisan-icon{transform:translateY(-2px)}
+.tabs button:not(.home-nav).active .artisan-icon>rect:first-child{fill:#EAD2BB}
+.tabs button:not(.home-nav) span:last-child{font-size:10px;letter-spacing:0}
+.tabs .center-symbol{overflow:hidden}
+.center-symbol .brand-glyph{width:100%;height:100%;object-fit:cover;border-radius:17px}
+.brand-mark{overflow:hidden}
+.brand-mark .brand-glyph{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.home-spark{overflow:hidden}
+.home-spark .brand-glyph{width:100%;height:100%;object-fit:cover;border-radius:18px}
+@media(max-width:370px){.tabs .artisan-icon{width:32px;height:32px}.tabs button:not(.home-nav) span:last-child{font-size:9px}}
