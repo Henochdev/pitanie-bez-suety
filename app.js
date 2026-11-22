@@ -8,6 +8,14 @@ const WED_DINNER=[[15,18],[39,42],[18,15],[17,20],[39,15]];
 const defaults=Array.from({length:30},(_,i)=>{const w=Math.floor(i/7),d=i%7;const b=BFAST[d];if(d<=1){const prev=(w+4)%5;return[b,SUN_LUNCH[prev],SUN_DINNER[prev]]}if(d<=5)return[b,WED_LUNCH[w%5][(d-2)%2],WED_DINNER[w%5][(d-2)%2]];return[b,SUN_LUNCH[w%5],SUN_DINNER[w%5]]});
 const PREVIOUS_DEFAULT=Array.from({length:30},(_,i)=>[i%7,7+i%7,14+i%7]);
 const EXTERNAL_FOOD=3*1200+2*1300;
+const P=window.PBS_PRICING||{stores:{estimate:{label:"Ориентировочные",prices:{}}}};
+let chosenStore=load("pbs-store-v1","estimate");if(!P.stores[chosenStore])chosenStore="estimate";
+const ingredientPrice=(name,estimated)=>P.stores[chosenStore]?.prices?.[name]?.unitPrice??estimated;
+const checkedKey=(week,name,people=settings.people)=>"w:"+week+":"+people+":"+name;
+function weeksFor(name){const result=[];for(let w=0;w<5;w++){let start=w*7,end=Math.min(30,start+7);if(plan.slice(start,end).flat().some(i=>R[i].ingredients.some(x=>x[0]===name)))result.push(w)}return result}
+function checkedStatus(w,name){if(w===-1){const weeks=weeksFor(name);return weeks.length>0&&weeks.every(x=>!!checks[checkedKey(x,name)])}return !!checks[checkedKey(w,name)]}
+function toggleChecked(w,name,value){const weeks=w===-1?weeksFor(name):[w];for(const i of weeks)checks[checkedKey(i,name)]=value;save(K.checks,checks)}
+
 function anchorFor(d){const wd=d%7;return wd<=1?d-wd-1:wd<=5?d-wd+2:d}
 function batchDays(anchor){if(anchor<0)return[0,1];if(anchor%7===2)return Array.from({length:4},(_,i)=>anchor+i).filter(x=>x<30);return Array.from({length:3},(_,i)=>anchor+i).filter(x=>x<30)}
 function batchName(a){return a<0?"Воскресенье перед началом меню":a%7===2?"Среда · день "+(a+1):"Воскресенье · день "+(a+1)}
@@ -20,10 +28,15 @@ if(savedSettings&&savedSettings.people===3&&savedSettings.budget===25200&&!local
   settings.people=1;try{localStorage.setItem("pbs-batch-defaults-migrated","yes");localStorage.setItem(K.settings,JSON.stringify(settings))}catch(e){}
 }
 settings.people=Math.min(12,Math.max(1,parseInt(settings.people,10)||1));settings.budget=Math.max(1,parseInt(settings.budget,10)||25200);
-let checks=load(K.checks,{});if(!checks||typeof checks!=="object")checks={};let favorites=load(K.favorites,[]);if(!Array.isArray(favorites))favorites=[];
+let checks=load(K.checks,{});if(!checks||typeof checks!=="object")checks={};
+// Migrate previous month-only and week-only states once, retaining previously checked purchases.
+if(!load("pbs-checks-sync-migrated",false)){
+ for(const [key,value] of Object.entries(checks)){if(!value)continue;const match=key.match(/^(-1|[0-4]):(\d+):(.+)$/);if(!match)continue;const w=Number(match[1]),people=Number(match[2]),name=match[3];if(w===-1){for(let i=0;i<5;i++)checks[checkedKey(i,name,people)]=true}else checks[checkedKey(w,name,people)]=true}
+ save(K.checks,checks);save("pbs-checks-sync-migrated",true)
+}let favorites=load(K.favorites,[]);if(!Array.isArray(favorites))favorites=[];
 let day=0,week=0,scope=0,tab="menu",category="Все",onlyFavorites=false,editSlot=null;
 const save=(key,val)=>{try{localStorage.setItem(key,JSON.stringify(val))}catch(e){console.warn("Не удалось сохранить:",e)}},money=n=>Math.round(n).toLocaleString("ru-RU")+" ₽",plural=n=>n===1?"человек":n>=2&&n<=4?"человека":"человек";
-const cost=r=>r.ingredients.reduce((sum,[,q,unit])=>sum+q*unit,0),monthTotal=()=>plan.flat().reduce((sum,i)=>sum+cost(R[i]),0)*settings.people;
+const cost=r=>r.ingredients.reduce((sum,[name,q,unit])=>sum+q*ingredientPrice(name,unit),0),monthTotal=()=>plan.flat().reduce((sum,i)=>sum+cost(R[i]),0)*settings.people;
 const isPiece=n=>n==="яйца"||n==="банан",qty=(n,v)=>Number.isInteger(v)?v.toLocaleString("ru-RU"):(Math.round(v*10)/10).toLocaleString("ru-RU"),unit=n=>isPiece(n)?"шт.":n==="молоко"?"мл":"г";
 const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
 function button(text,fn,cls=""){const b=el("button",cls,text);b.type="button";b.addEventListener("click",fn);return b}
@@ -57,12 +70,23 @@ renderAmounts();
 $("#modal-add").onclick=()=>{selectRecipe(id);modal.close()};
 modal.showModal()
 }
-function renderShop(){const total=monthTotal(),homeBudget=Math.max(0,settings.budget-EXTERNAL_FOOD),progress=homeBudget>0?total/homeBudget:Infinity;$("#total").textContent=money(total);$("#budgetcompare").textContent="На домашнюю еду "+money(homeBudget)+" из "+money(settings.budget)+" общего бюджета · "+(progress<=1?"остаток "+money(homeBudget-total):"превышение "+money(total-homeBudget));$("#budgetcompare").classList.toggle("warning",progress>1);$("#shoppeople").textContent="Продукты на "+settings.people+" "+plural(settings.people)+". Галочки сохраняются отдельно для каждого периода.";chips($("#shopweeks"),[[-1,"30 дней"],...[0,1,2,3,4].map(i=>[i,"Неделя "+(i+1)])],scope,c=>{scope=c;renderShop()});const start=scope===-1?0:scope*7,end=scope===-1?30:Math.min(30,start+7),tally=new Map();plan.slice(start,end).flat().forEach(i=>R[i].ingredients.forEach(([name,q,price])=>{const prev=tally.get(name)||[0,0];tally.set(name,[prev[0]+q*settings.people,prev[1]+q*price*settings.people])}));let entries=[...tally].sort((a,b)=>a[0].localeCompare(b[0],"ru"));$("#periodcost").textContent="Стоимость периода: "+money(entries.reduce((s,x)=>s+x[1][1],0));const key=scope+":"+settings.people+":";let done=0;$("#shopping-list").replaceChildren(...entries.map(([name,[number,price]])=>{const row=el("div","countline"),label=el("label","checkrow"+(checks[key+name]?" checked":"")),checkbox=el("input");checkbox.type="checkbox";checkbox.checked=!!checks[key+name];if(checkbox.checked)done++;checkbox.addEventListener("change",()=>{checks[key+name]=checkbox.checked;save(K.checks,checks);label.classList.toggle("checked",checkbox.checked);updateProgress()});const text=el("span","",name+" · "+qty(name,number)+" "+unit(name));label.append(checkbox,text);row.append(label,el("strong","",money(price)));return row}));function updateProgress(){const marked=entries.filter(([name])=>checks[key+name]).length;$("#checkedcount").textContent="Куплено "+marked+" из "+entries.length}updateProgress();$("#emptyshopping").hidden=entries.length>0}
+function renderShop(){const total=monthTotal(),homeBudget=Math.max(0,settings.budget-EXTERNAL_FOOD),progress=homeBudget>0?total/homeBudget:Infinity;$("#total").textContent=money(total);$("#budgetcompare").textContent="На домашнюю еду "+money(homeBudget)+" из "+money(settings.budget)+" общего бюджета · "+(progress<=1?"остаток "+money(homeBudget-total):"превышение "+money(total-homeBudget));$("#budgetcompare").classList.toggle("warning",progress>1);$("#shoppeople").textContent="Продукты на "+settings.people+" "+plural(settings.people)+". Галочки связаны между месяцем и неделями.";
+const storeSelect=$("#store-select");storeSelect.value=chosenStore;
+$("#store-info").textContent=P.stores[chosenStore]?.notes||"Ориентировочные цены.";chips($("#shopweeks"),[[-1,"30 дней"],...[0,1,2,3,4].map(i=>[i,"Неделя "+(i+1)])],scope,c=>{scope=c;renderShop()});const start=scope===-1?0:scope*7,end=scope===-1?30:Math.min(30,start+7),tally=new Map();plan.slice(start,end).flat().forEach(i=>R[i].ingredients.forEach(([name,q,price])=>{const prev=tally.get(name)||[0,0];tally.set(name,[prev[0]+q*settings.people,prev[1]+q*ingredientPrice(name,price)*settings.people])}));let entries=[...tally].sort((a,b)=>a[0].localeCompare(b[0],"ru"));$("#periodcost").textContent="Стоимость периода: "+money(entries.reduce((s,x)=>s+x[1][1],0));$("#shopping-list").replaceChildren(...entries.map(([name,[number,price]])=>{
+const row=el("div","countline"),label=el("label","checkrow"+(checkedStatus(scope,name)?" checked":"")),checkbox=el("input");
+checkbox.type="checkbox";checkbox.checked=checkedStatus(scope,name);
+checkbox.addEventListener("change",()=>{toggleChecked(scope,name,checkbox.checked);label.classList.toggle("checked",checkbox.checked);updateProgress()});
+label.append(checkbox,el("span","",name+" · "+qty(name,number)+" "+unit(name)));
+row.append(label,el("strong","",money(price)));return row}));
+function updateProgress(){const marked=entries.filter(([name])=>checkedStatus(scope,name)).length;$("#checkedcount").textContent="Куплено "+marked+" из "+entries.length}
+updateProgress();
+$("#emptyshopping").hidden=entries.length>0}
 function renderSettings(){ $("#people").value=settings.people;$("#budget").value=settings.budget;$("#settings-total").textContent="На домашнюю еду: "+money(Math.max(0,settings.budget-EXTERNAL_FOOD))+" (остальное: доставка 3 × 1 200 ₽, кафе 2 × 1 300 ₽). Примерная стоимость текущего домашнего меню: "+money(monthTotal());$("#install-instructions").textContent=/iPad|iPhone|iPod/.test(navigator.userAgent)?"В Safari нажми «Поделиться» → «На экран Домой» → «Добавить». Если пункта нет, открой сайт именно в Safari.":"На iPhone открой сайт в Safari → «Поделиться» → «На экран Домой». На Android в Chrome выбери «Установить приложение»."}
 function render(){ $$(".tab").forEach(b=>{const yes=b.dataset.tab===tab;b.classList.toggle("active",yes);b.setAttribute("aria-selected",String(yes))});$$(".screen").forEach(s=>s.hidden=s.id!==tab);$("#hero-people").textContent=settings.people+" "+plural(settings.people);$("#hero-budget").textContent=money(settings.budget);if(tab==="menu")renderMenu();if(tab==="recipes")renderCatalog();if(tab==="shop")renderShop();if(tab==="settings")renderSettings()}
 $$(".tab").forEach(b=>b.addEventListener("click",()=>{editSlot=null;goto(b.dataset.tab)}));$("#search").addEventListener("input",renderCatalog);$("#favfilter").addEventListener("click",()=>{onlyFavorites=!onlyFavorites;renderCatalog()});$("#modal-close").addEventListener("click",()=>$("#recipe-modal").close());$("#recipe-modal").addEventListener("click",e=>{if(e.target.id==="recipe-modal")e.currentTarget.close()});
 $("#save-settings").addEventListener("click",()=>{const people=Number($("#people").value),budget=Number($("#budget").value);if(!Number.isInteger(people)||people<1||people>12||!Number.isFinite(budget)||budget<1){alert("Укажи от 1 до 12 человек и бюджет больше нуля.");return}settings={people,budget:Math.round(budget)};save(K.settings,settings);render();$("#saved").textContent="✓ Настройки сохранены"});
 $("#reset").addEventListener("click",()=>{if(confirm("Вернуть меню с готовкой по воскресеньям и средам на все 30 дней?")){plan=defaults.map(x=>[...x]);save(K.plan,plan);goto("menu")}});
+$("#store-select").addEventListener("change",e=>{chosenStore=e.target.value;save("pbs-store-v1",chosenStore);renderShop()});
 $("#clear-checks").addEventListener("click",()=>{if(confirm("Очистить отметки купленных продуктов?")){checks={};save(K.checks,checks);renderShop()}});
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(e=>console.warn("Service worker:",e)));
 render();
