@@ -146,6 +146,7 @@ $("#reset").addEventListener("click",()=>{if(confirm("Вернуть меню с
 $("#store-select").addEventListener("change",e=>{chosenStore=e.target.value;save("pbs-store-v1",chosenStore);renderShop()});
 $("#clear-checks").addEventListener("click",()=>{if(confirm("Очистить отметки купленных продуктов?")){checks={};save(K.checks,checks);renderShop()}});
 window.PBS_ANALYTICS?.bind();
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(e=>console.warn("Service worker:",e)));
+// Temporarily disable offline worker until cache upgrades are consistently verified on iOS.
 render();
+document.documentElement.dataset.appReady="true";
 })();
