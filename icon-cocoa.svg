@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Питание без суеты">
+<rect width="512" height="512" rx="120" fill="#593A2B"/>
+<circle cx="256" cy="256" r="166" fill="#F7EADC"/>
+<path d="M147 291h218c-8 74-54 112-109 112s-101-38-109-112Z" fill="#7B5239"/>
+<path d="M144 289h224" stroke="#593A2B" stroke-width="20" stroke-linecap="round"/>
+<path d="m199 233 37 36 78-88" fill="none" stroke="#B7835E" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M188 332c34 30 102 35 138 0" fill="none" stroke="#E9C7A7" stroke-width="12" stroke-linecap="round"/>
+<path d="M109 165v109M91 165v62M127 165v62M91 227c0 22 36 22 36 0" fill="none" stroke="#593A2B" stroke-width="13" stroke-linecap="round"/>
+<path d="M399 165c-29 35-29 79 0 100v42" fill="none" stroke="#593A2B" stroke-width="13" stroke-linecap="round"/>
+</svg>
