@@ -16,3 +16,71 @@
 #purchase-modal .details{display:grid;gap:12px;margin-top:12px}
 #purchase-history button[data-remove]{padding:5px 9px;font-size:20px}
 @media(min-width:750px){.tabs button{font-size:14px}}
+
+/* Design system v3 — Calm editorial mobile companion, November 2026 */
+:root{--ink:#203c31;--deep:#183d31;--sage:#7f9e88;--forest:#315b47;--mist:#eaf0e9;--sand:#f5f4ed;--cream:#faf9f5;--line:#e8eae3;--muted:#77857b;background:var(--cream);color:var(--ink)}
+html{background:var(--cream)}
+body{background:var(--cream);padding-bottom:calc(102px + env(safe-area-inset-bottom));letter-spacing:-.01em}
+main{max-width:840px;padding:0 18px}
+.app-header{position:relative;background:var(--cream);z-index:6;border-bottom:1px solid #eceee7}
+.app-header-inner{max-width:840px;margin:auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:76px}
+.brand-wordmark{display:flex;align-items:center;gap:10px;white-space:nowrap;border:0;padding:0;background:none;color:var(--deep);text-align:left;font-size:21px;letter-spacing:-.055em;font-weight:850;line-height:.94}
+.brand-wordmark small{display:block;font-size:11px;letter-spacing:.06em;font-weight:600;margin-top:4px;color:#829083}
+.brand-mark{background:var(--deep);color:#e5eacf;font-size:24px;width:42px;height:42px;display:grid;place-items:center;border-radius:15px}
+.brand-dot{color:#85ab79}
+.header-tools{display:flex;align-items:center;gap:10px}
+.header-date{font-size:12px;font-weight:650;color:#76877a;white-space:nowrap}
+.header-settings{width:40px;height:40px;display:grid;place-items:center;background:#e9eee7;border-radius:14px;font-size:20px;padding:0;color:var(--deep)}
+.tabs{position:fixed;z-index:15;bottom:0;top:auto;left:0;right:0;margin:auto;width:100%;max-width:840px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;padding:9px 9px calc(8px + env(safe-area-inset-bottom));border:1px solid #e9eae5;border-bottom:0;border-radius:24px 24px 0 0;background:#ffffffef;backdrop-filter:blur(18px);box-shadow:0 -12px 48px #273a3219}
+.tabs button,.tabs button.active{background:transparent!important;color:#839087!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:14px;min-height:56px;padding:6px 2px;line-height:1;font-size:10px;letter-spacing:0;white-space:normal}
+.tabs button .emoji{display:block;font-size:24px;font-family:system-ui;font-weight:400;margin:0;line-height:1}
+.tabs button.active{color:var(--deep)!important;font-weight:800}
+.tabs button:not(.home-nav).active .emoji{color:#3f7656}
+.tabs button.home-nav{position:relative;color:var(--deep)!important;font-weight:800}
+.tabs .home-nav .center-symbol{background:var(--deep);color:#fff;display:grid;place-items:center;font-size:24px;width:51px;height:51px;border-radius:20px;box-shadow:0 7px 17px #214e3550;margin-top:-28px;margin-bottom:3px}
+.tabs button.home-nav.active .center-symbol{background:#234b38}
+.screen{padding:17px 0 28px}
+.screen[hidden]{display:none!important}
+.screen>h2{font-size:25px;letter-spacing:-.045em;margin:18px 0 6px;font-weight:800}
+.screen .subtle{line-height:1.5}
+.card{background:#fff;border:1px solid var(--line);border-radius:21px;box-shadow:0 5px 21px #30463608}
+.note{background:#edf2ea;color:#536f5d;line-height:1.55}
+button.primary,button.active:not(.tab){background:var(--deep)!important;color:#fff!important}
+.pill{border-radius:13px;background:#edf0e9}
+.home-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-top:23px}
+.eyebrow{color:#709078;font-weight:850;font-size:11px;letter-spacing:.16em;margin:0 0 12px}
+.home-title{font-size:clamp(32px,7.4vw,52px);letter-spacing:-.065em;line-height:1.04;font-weight:850;margin:0;max-width:500px}
+.home-subtitle{font-size:14px;color:#839084;line-height:1.5;margin:12px 0 0;max-width:350px}
+.home-spark{width:54px;height:54px;flex:none;background:#e6eddf;color:#5d866a;display:grid;place-items:center;border-radius:18px;font-size:31px;transform:rotate(-9deg)}
+.home-focus{background:linear-gradient(135deg,#1d4b39,#153729);color:#fff;border-radius:28px;padding:25px;margin:29px 0 25px;min-height:250px;position:relative;overflow:hidden;box-shadow:0 16px 32px #224d3528}
+.home-focus:after{content:"✳";position:absolute;right:-38px;top:-79px;font-size:255px;line-height:1;color:#ffffff10;pointer-events:none;transform:rotate(18deg)}
+.home-focus[data-variant="cooking"]{background:linear-gradient(135deg,#345b43,#213e30)}
+.focus-content{position:relative;z-index:1;max-width:600px}
+.focus-kicker{display:inline-block;background:#ffffff21;border:1px solid #ffffff20;border-radius:999px;padding:8px 11px;letter-spacing:.08em;font-size:10px;font-weight:800;color:#e9f4e5}
+.focus-content h2{font-size:clamp(25px,5.6vw,35px);line-height:1.1;letter-spacing:-.05em;margin:14px 0 8px;color:white}
+.focus-content p{line-height:1.48;color:#e3eddf;font-size:14px;max-width:450px}
+.focus-summary{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:18px 0}
+.focus-summary span{display:inline-flex;gap:5px;padding:8px 10px;border-radius:11px;background:#ffffff19;font-size:11px;color:#edf5eb}
+.focus-button{border-radius:14px;background:#f1f2e9;color:#204a35;padding:13px 17px;font-size:13px;min-width:175px;text-align:center}
+.home-section-head{margin-top:24px;margin-bottom:7px}
+.home-section-head h2{font-size:23px;letter-spacing:-.045em;margin:0;font-weight:800}
+.text-button{background:transparent;border:0;padding:6px 3px;font-size:12px;font-weight:750;color:#4a8061}
+.home-meal-list{display:grid;gap:9px}
+.home-meal-item{width:100%;display:flex;text-align:left;align-items:center;gap:13px;border:1px solid #e9ece5;background:#fff;box-shadow:0 3px 13px #344e3708;padding:9px 13px 9px 9px;border-radius:18px;color:var(--ink);white-space:normal}
+.home-meal-image{height:72px;width:78px;aspect-ratio:auto;flex:none;border-radius:12px}
+.home-meal-image .fallback{font-size:34px}
+.home-meal-info{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+.home-meal-info .label{font-size:11px;letter-spacing:.025em;color:#819083}
+.home-meal-info strong{font-size:15px;line-height:1.2;letter-spacing:-.02em}
+.meal-arrow{color:#7e9584;font-size:20px;font-weight:400;flex:none}
+.home-tomorrow{margin:23px 0 10px;background:#ebece5;border:1px solid #e3e8dc;border-radius:24px;padding:20px 21px}
+.tomorrow-heading{color:#6d8671;letter-spacing:.13em;font-size:11px;font-weight:800}
+.home-tomorrow h3{font-size:21px;font-weight:800;letter-spacing:-.04em;margin:9px 0}
+.home-tomorrow p{font-size:13px;color:#59715f}
+.tomorrow-food{color:#7a897c;font-size:12px;line-height:1.5;margin:13px 0}
+.home-footer-note{font-size:12px;color:#8a9b8c;text-align:center;padding:17px 8px 5px;line-height:1.5}
+.meal-card .imagebox{border-radius:15px}
+.recipe-tile{box-shadow:0 4px 17px #40524409}
+#purchase-modal,#recipe-modal{border-radius:25px}
+@media(min-width:750px){.tabs button,.tabs button.active{font-size:12px}.home-focus{padding:32px}.home-meal-image{width:94px;height:82px}}
+@media(max-width:370px){.app-header-inner{padding:12px 15px}.header-date{font-size:11px}.home-spark{width:42px;height:42px}.home-title{font-size:31px}.home-focus{padding:22px}.tabs{padding-left:4px;padding-right:4px}.tabs button,.tabs button.active{font-size:9px}}
