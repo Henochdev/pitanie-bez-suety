@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Питание без суеты — керамическая миска">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#734C37"/><stop offset="1" stop-color="#4B3025"/></linearGradient>
+<linearGradient id="bowl" x1="0" y1="0" x2="0.9" y2="1"><stop stop-color="#FFF4E8"/><stop offset="1" stop-color="#E7C5A3"/></linearGradient>
+</defs>
+<rect x="0" y="0" width="512" height="512" rx="116" fill="url(#bg)"/>
+<circle cx="256" cy="253" r="191" fill="#F5E7D7"/>
+<path d="M209 191 C170 159 199 111 238 141 C257 155 263 175 258 189 C274 144 315 125 337 154 C357 183 318 219 275 238" fill="none" stroke="#BB8159" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M306 146 C302 124 315 109 324 93" fill="none" stroke="#D5A077" stroke-width="11" stroke-linecap="round"/>
+<path d="M329 274 L352 206" stroke="#583A2B" stroke-width="21" stroke-linecap="round"/>
+<path d="M333 281 C333 311 309 331 290 340" fill="none" stroke="#C8956F" stroke-width="9" stroke-linecap="round"/>
+<ellipse cx="249" cy="279" rx="139" ry="31" fill="#68442F"/>
+<ellipse cx="249" cy="272" rx="130" ry="22" fill="#F4DFC8"/>
+<path d="M113 284 C126 368 164 397 249 399 C331 397 367 362 384 284 C337 303 166 307 113 284 Z" fill="url(#bowl)" stroke="#68442F" stroke-width="11" stroke-linejoin="round"/>
+<path d="M185 343 C207 358 231 367 255 369" fill="none" stroke="#B7835E" stroke-width="9" stroke-linecap="round"/>
+<path d="M266 355 C266 325 290 309 324 310 C316 338 296 351 266 355 Z" fill="#A46D4D"/>
+<path d="M270 348 C252 318 222 313 201 323 C222 341 246 346 270 348 Z" fill="#C8956F"/>
+<path d="M265 363 C262 340 263 325 271 310" stroke="#704933" stroke-width="7" fill="none" stroke-linecap="round"/>
+<ellipse cx="249" cy="413" rx="111" ry="9" fill="#6B462F" opacity=".12"/>
+</svg>
