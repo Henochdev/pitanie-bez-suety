@@ -32,7 +32,7 @@ let checks=load(K.checks,{});if(!checks||typeof checks!=="object")checks={};
 // Migrate previous month-only and week-only states once, retaining previously checked purchases.
 if(!load("pbs-checks-sync-migrated",false)){
  for(const [key,value] of Object.entries(checks)){if(!value)continue;const match=key.match(/^(-1|[0-4]):(\d+):(.+)$/);if(!match)continue;const w=Number(match[1]),people=Number(match[2]),name=match[3];if(w===-1){for(let i=0;i<5;i++)checks[checkedKey(i,name,people)]=true}else checks[checkedKey(w,name,people)]=true}
- save(K.checks,checks);save("pbs-checks-sync-migrated",true)
+ try{localStorage.setItem(K.checks,JSON.stringify(checks));localStorage.setItem("pbs-checks-sync-migrated","true")}catch(e){console.warn("Migration:",e)}
 }let favorites=load(K.favorites,[]);if(!Array.isArray(favorites))favorites=[];
 let day=0,week=0,scope=0,tab="menu",category="Все",onlyFavorites=false,editSlot=null;
 const save=(key,val)=>{try{localStorage.setItem(key,JSON.stringify(val))}catch(e){console.warn("Не удалось сохранить:",e)}},money=n=>Math.round(n).toLocaleString("ru-RU")+" ₽",plural=n=>n===1?"человек":n>=2&&n<=4?"человека":"человек";
