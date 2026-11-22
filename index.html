@@ -80,7 +80,11 @@
 <div class="field"><label for="work-end">Конец смены</label><input class="input" id="work-end" type="time" value="21:00"></div>
 </div>
 <div class="field"><label for="work-commute">Дорога в одну сторону, минут</label><input class="input" id="work-commute" type="number" inputmode="numeric" min="0" max="240" step="5" value="40"></div>
-<button id="save-work" type="button" class="primary wide">Сохранить график и пересчитать план</button>
+<button id="save-work" type="button" class="primary wide">Сохранить график и пересчитать план</button><div class="shift-build">
+<button id="build-work-menu" type="button">🍱 Составить меню под смены</button>
+<button id="restore-work-menu" type="button">↶ Вернуть прежние блюда</button>
+<p class="subtle">Если выбрать, обеды и ужины объединятся в партии на несколько дней, чтобы готовить реже. Исходное меню будет сохранено для возврата.</p>
+</div>
 <p id="work-save-status" class="subtle" aria-live="polite"></p>
 <div class="shift-overview"><strong>Календарь на 30 дней</strong><p class="subtle">Нажми на дату, чтобы посмотреть рабочее время и план готовки.</p><div id="work-calendar" class="work-calendar"></div><div id="work-calendar-detail" class="shift-detail"></div></div>
 </div>
