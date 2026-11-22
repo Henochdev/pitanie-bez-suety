@@ -206,3 +206,36 @@ dialog{background:#fffaf5;color:#49342a}
   object-fit:contain!important;object-position:center!important;
 }
 @media(max-width:390px){.logo-upload-layout{gap:11px}.logo-preview{flex-basis:78px;width:78px;height:78px}}
+
+/* v21 Work schedule: quiet, legible mobile calendar in warm ceramic palette */
+.shift-home-badge{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:19px}
+.shift-pill{display:inline-flex;max-width:100%;align-items:center;border-radius:13px;background:#F2E6DB;border:1px solid #E7D8C9;color:#664B3A;padding:9px 12px;font-size:12px;line-height:1.45;font-weight:650}
+.shift-confirm{border:1px solid #DEC6AE;background:#FFF7EE;color:#80583D;padding:9px 11px;font-size:12px}
+.shift-title{display:flex;gap:13px;align-items:center;margin-bottom:16px}
+.shift-title strong{font-size:16px}
+.shift-title p{margin:4px 0}
+.shift-chip{display:grid;place-items:center;width:64px;min-width:64px;height:64px;background:#6D4835;color:#FFF0DD;border-radius:19px;font-size:19px;font-weight:800}
+.shift-settings>.field,.shift-settings>.formrow{margin-bottom:14px}
+.shift-settings .formrow .field{min-width:0}
+.shift-settings input[type="time"]{min-width:0;font-size:15px}
+.shift-overview{border-top:1px solid #E9DCCD;padding-top:18px;margin-top:20px}
+.shift-overview>strong{font-size:17px}
+.shift-overview>.subtle{margin:5px 0 12px}
+.work-calendar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.shift-day{min-width:0;display:flex;flex-direction:column;gap:7px;align-items:flex-start;text-align:left;padding:11px 8px;border:1px solid #E8D9C9;border-radius:13px;min-height:68px;background:#F6EFE7;color:#5B4536;white-space:normal}
+.shift-day.work{background:#F3E7D9;border-color:#E6D4C0}
+.shift-day.off{background:#FCFAF5}
+.shift-day.cook{background:#EBD3B9;border-color:#CC9F73;color:#593724}
+.shift-day.chosen{outline:2px solid #A06F4E;outline-offset:1px}
+.shift-day strong{font-size:11px;line-height:1.2}
+.shift-date{font-size:10px;color:#887465}
+.shift-detail{background:#FAF4EC;border:1px solid #EADBCB;padding:14px;border-radius:16px;margin-top:12px}
+.shift-detail h3{margin-top:0}
+.shift-detail>p{line-height:1.5}
+.shift-detail>.primary{margin-top:12px}
+.shift-strong{font-weight:700;color:#66402C}
+.shift-build{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.shift-build button{white-space:normal;font-size:12px;padding:11px 10px;line-height:1.3}
+.shift-build p{grid-column:1/-1;margin:0}
+#menu-shift-note{margin:13px 0}
+@media(max-width:370px){.work-calendar{gap:5px}.shift-day{padding:8px 5px}.shift-date{font-size:9px}.shift-day strong{font-size:10px}}
