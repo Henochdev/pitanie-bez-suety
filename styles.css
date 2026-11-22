@@ -6,3 +6,13 @@
 .recipe-tile .imagebox{width:100%;aspect-ratio:3/2}
 #recipe-modal .detail-photo{width:100%;height:auto;aspect-ratio:4/3;background:#e7eddc}
 #recipe-modal .detail-photo img{object-fit:contain;object-position:center}
+
+/* Five compact tabs and actual purchase journal on mobile */
+.tabs{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.tabs button{font-size:11px;padding:10px 2px;white-space:normal;overflow-wrap:anywhere}
+#shopping-list .countline{flex-wrap:wrap}
+#shopping-list .countline .checkrow{min-width:145px}
+#shopping-list .countline>button{font-size:12px;padding:7px 9px;margin-left:auto}
+#purchase-modal .details{display:grid;gap:12px;margin-top:12px}
+#purchase-history button[data-remove]{padding:5px 9px;font-size:20px}
+@media(min-width:750px){.tabs button{font-size:14px}}
