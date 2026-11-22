@@ -134,7 +134,7 @@ updateProgress();
 $("#emptyshopping").hidden=entries.length>0;renderPurchaseGuide()}
 function renderSettings(){ $("#plan-start").value=planStart; $("#people").value=settings.people;$("#budget").value=settings.budget;$("#settings-total").textContent="На домашнюю еду: "+money(Math.max(0,settings.budget-EXTERNAL_FOOD))+" (остальное: доставка 3 × 1 200 ₽, кафе 2 × 1 300 ₽). Примерная стоимость текущего домашнего меню: "+money(monthTotal());$("#install-instructions").textContent=/iPad|iPhone|iPod/.test(navigator.userAgent)?"В Safari нажми «Поделиться» → «На экран Домой» → «Добавить». Если пункта нет, открой сайт именно в Safari.":"На iPhone открой сайт в Safari → «Поделиться» → «На экран Домой». На Android в Chrome выбери «Установить приложение»."}
 function render(){ $$(".tab").forEach(b=>{const yes=b.dataset.tab===tab;b.classList.toggle("active",yes);b.setAttribute("aria-selected",String(yes))});$$(".screen").forEach(s=>s.hidden=s.id!==tab);if(tab==="home")renderHome();if(tab==="menu")renderMenu();if(tab==="recipes")renderCatalog();if(tab==="shop")renderShop();if(tab==="settings")renderSettings();if(tab==="analytics")window.PBS_ANALYTICS?.render()}
-$(".tab").forEach(b=>b.addEventListener("click",()=>{editSlot=null;goto(b.dataset.tab)}));
+$$(".tab").forEach(b=>b.addEventListener("click",()=>{editSlot=null;goto(b.dataset.tab)}));
 $("#brand-home").addEventListener("click",()=>goto("home"));
 $("#settings-open").addEventListener("click",()=>goto("settings"));
 $("#home-menu-link").addEventListener("click",()=>{let i=planDayOffset();if(i>=0&&i<30){day=i;week=Math.floor(i/7)}goto("menu")});
