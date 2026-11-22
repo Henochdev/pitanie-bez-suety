@@ -306,7 +306,7 @@ $("#save-work").addEventListener("click",()=>{
 $("#save-settings").addEventListener("click",()=>{const people=Number($("#people").value),budget=Number($("#budget").value);if(!Number.isInteger(people)||people<1||people>12||!Number.isFinite(budget)||budget<1){alert("Укажи от 1 до 12 человек и бюджет больше нуля.");return}settings={people,budget:Math.round(budget)};save(K.settings,settings);
 const date=$("#plan-start").value;if(/^\d{4}-\d{2}-\d{2}$/.test(date)){const d=new Date(date+"T12:00:00");if(d.getDay()!==1){alert("Выбери понедельник: недельный план готовки построен с понедельника по воскресенье.");return}planStart=date;save("pbs-plan-start",planStart)}
 render();$("#saved").textContent="✓ Настройки сохранены"});
-$("#reset").addEventListener("click",()=>{if(confirm("Вернуть меню с готовкой по воскресеньям и средам на все 30 дней?")){plan=defaults.map(x=>[...x]);save(K.plan,plan);goto("menu")}});
+$("#reset").addEventListener("click",()=>{if(confirm("Вернуть исходные блюда на 30 дней? График работы останется без изменений.")){plan=defaults.map(x=>[...x]);save(K.plan,plan);goto("menu")}});
 $("#store-select").addEventListener("change",e=>{chosenStore=e.target.value;save("pbs-store-v1",chosenStore);renderShop()});
 $("#clear-checks").addEventListener("click",()=>{if(confirm("Очистить отметки купленных продуктов?")){checks={};save(K.checks,checks);renderShop()}});
 window.PBS_ANALYTICS?.bind();
