@@ -101,17 +101,18 @@ const row=el("div","countline"),label=el("label","checkrow"+(checkedStatus(scope
 checkbox.type="checkbox";checkbox.checked=checkedStatus(scope,name);
 checkbox.addEventListener("change",()=>{toggleChecked(scope,name,checkbox.checked);label.classList.toggle("checked",checkbox.checked);updateProgress()});
 label.append(checkbox,el("span","",name+" · "+qty(name,number)+" "+unit(name)));
-row.append(label,el("strong","",money(price)));return row}));
+row.append(label,el("strong","",money(price)));const action=button("Записать",()=>window.PBS_ANALYTICS?.show(name,chosenStore,unit(name),number),"");action.dataset.buyName=name;action.dataset.buyUnit=unit(name);action.dataset.buyQty=String(number);action.title="Добавить фактическую покупку в аналитику";row.append(action);return row}));
 function updateProgress(){const marked=entries.filter(([name])=>checkedStatus(scope,name)).length;$("#checkedcount").textContent="Куплено "+marked+" из "+entries.length}
 updateProgress();
 $("#emptyshopping").hidden=entries.length>0;renderPurchaseGuide()}
 function renderSettings(){ $("#people").value=settings.people;$("#budget").value=settings.budget;$("#settings-total").textContent="На домашнюю еду: "+money(Math.max(0,settings.budget-EXTERNAL_FOOD))+" (остальное: доставка 3 × 1 200 ₽, кафе 2 × 1 300 ₽). Примерная стоимость текущего домашнего меню: "+money(monthTotal());$("#install-instructions").textContent=/iPad|iPhone|iPod/.test(navigator.userAgent)?"В Safari нажми «Поделиться» → «На экран Домой» → «Добавить». Если пункта нет, открой сайт именно в Safari.":"На iPhone открой сайт в Safari → «Поделиться» → «На экран Домой». На Android в Chrome выбери «Установить приложение»."}
-function render(){ $$(".tab").forEach(b=>{const yes=b.dataset.tab===tab;b.classList.toggle("active",yes);b.setAttribute("aria-selected",String(yes))});$$(".screen").forEach(s=>s.hidden=s.id!==tab);$("#hero-people").textContent=settings.people+" "+plural(settings.people);$("#hero-budget").textContent=money(settings.budget);if(tab==="menu")renderMenu();if(tab==="recipes")renderCatalog();if(tab==="shop")renderShop();if(tab==="settings")renderSettings()}
+function render(){ $$(".tab").forEach(b=>{const yes=b.dataset.tab===tab;b.classList.toggle("active",yes);b.setAttribute("aria-selected",String(yes))});$$(".screen").forEach(s=>s.hidden=s.id!==tab);$("#hero-people").textContent=settings.people+" "+plural(settings.people);$("#hero-budget").textContent=money(settings.budget);if(tab==="menu")renderMenu();if(tab==="recipes")renderCatalog();if(tab==="shop")renderShop();if(tab==="settings")renderSettings();if(tab==="analytics")window.PBS_ANALYTICS?.render()}
 $$(".tab").forEach(b=>b.addEventListener("click",()=>{editSlot=null;goto(b.dataset.tab)}));$("#search").addEventListener("input",renderCatalog);$("#favfilter").addEventListener("click",()=>{onlyFavorites=!onlyFavorites;renderCatalog()});$("#modal-close").addEventListener("click",()=>$("#recipe-modal").close());$("#recipe-modal").addEventListener("click",e=>{if(e.target.id==="recipe-modal")e.currentTarget.close()});
 $("#save-settings").addEventListener("click",()=>{const people=Number($("#people").value),budget=Number($("#budget").value);if(!Number.isInteger(people)||people<1||people>12||!Number.isFinite(budget)||budget<1){alert("Укажи от 1 до 12 человек и бюджет больше нуля.");return}settings={people,budget:Math.round(budget)};save(K.settings,settings);render();$("#saved").textContent="✓ Настройки сохранены"});
 $("#reset").addEventListener("click",()=>{if(confirm("Вернуть меню с готовкой по воскресеньям и средам на все 30 дней?")){plan=defaults.map(x=>[...x]);save(K.plan,plan);goto("menu")}});
 $("#store-select").addEventListener("change",e=>{chosenStore=e.target.value;save("pbs-store-v1",chosenStore);renderShop()});
 $("#clear-checks").addEventListener("click",()=>{if(confirm("Очистить отметки купленных продуктов?")){checks={};save(K.checks,checks);renderShop()}});
+window.PBS_ANALYTICS?.bind();
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(e=>console.warn("Service worker:",e)));
 render();
 })();
