@@ -88,3 +88,10 @@ button.primary,button.active:not(.tab){background:var(--deep)!important;color:#f
 /* Native iOS font rendering for decorative marks, not emoji */
 .brand-mark,.home-spark,.center-symbol{font-family:Arial,Helvetica,sans-serif;font-variant-emoji:text;line-height:1}
 .home-focus:empty{min-height:0}
+
+/* Crisp consistent nav icons instead of font symbols */
+.tabs .nav-icon{width:24px;height:24px;display:block;flex:none;margin:0;stroke:currentColor;fill:none}
+.tabs button.active .nav-icon{color:var(--deep)}
+.install-steps{padding-left:24px;color:#465c4c;font-size:14px;line-height:1.55}
+.install-steps li{padding:6px 0}
+.install-copy{display:block;width:100%;background:#234b38;color:white}
