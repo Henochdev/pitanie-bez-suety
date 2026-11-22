@@ -70,6 +70,30 @@ renderAmounts();
 $("#modal-add").onclick=()=>{selectRecipe(id);modal.close()};
 modal.showModal()
 }
+// Shopping cadence is guidance, not an assertion of any product's expiry date.
+// Monthly staples: dry goods and unopened canned foods. Proteins are purchased on
+// cooking days or purchased frozen and safely thawed in the fridge.
+const MONTHLY_STAPLES=new Set(["овсянка","гречка","рис","макароны","чечевица","мука","манка","булгур","пшено","кускус","тунец","фасоль"]);
+const COOKING_DAY=new Set(["куриное филе","индейка","рыба"]);
+function buyingCategory(name){return COOKING_DAY.has(name)?"prep":MONTHLY_STAPLES.has(name)?"month":"fresh"}
+function aggregateIngredients(days,category){const tally=new Map();for(const d of days){if(d<0||d>=30)continue;for(const recipeId of plan[d])for(const [name,amount,unitPrice] of R[recipeId].ingredients){if(buyingCategory(name)!==category)continue;const old=tally.get(name)||0;tally.set(name,old+amount*settings.people)}}return tally}
+function addPurchaseLines(parent,amounts){if(amounts.size===0){parent.append(el("p","subtle","Для выбранного периода ничего покупать не нужно."));return}for(const [name,amount]of [...amounts].sort((a,b)=>a[0].localeCompare(b[0],"ru"))){const row=el("div","countline");row.append(el("span","",name),el("strong","",qty(name,amount)+" "+unit(name)));parent.append(row)}}
+function renderPurchaseGuide(){
+const container=$("#purchase-guide");if(!container)return;container.replaceChildren();
+const monthDays=Array.from({length:30},(_,i)=>i),weekStart=scope<0?0:scope*7,weekEnd=scope<0?30:Math.min(30,weekStart+7),days=monthDays.slice(weekStart,weekEnd);
+const month=el("details","card content-card");month.open=true;month.append(el("summary","","📦 Купить на месяц — сухие продукты и консервы"));month.append(el("p","subtle","Весь месячный объём. Крупы, муку и закрытые консервы можно взять заранее; проверяй срок и условия хранения на упаковке."));addPurchaseLines(month,aggregateIngredients(monthDays,"month"));container.append(month);
+const fresh=el("details","card content-card");fresh.open=true;fresh.append(el("summary","","🥬 Свежие продукты — покупать по неделям"));
+fresh.append(el("p","subtle",scope<0?"Ниже объёмы для каждой недели. Овощи, фрукты, молочное и хлеб не стоит покупать на весь месяц без подходящего хранения.":"Ниже объёмы только выбранной недели. Скоропортящиеся позиции при необходимости докупай ближе к употреблению."));
+if(scope<0){for(let w=0;w<5;w++){const first=w*7,last=Math.min(30,first+7),period=el("details","");period.append(el("summary","","Неделя "+(w+1)+" · дни "+(first+1)+"–"+last));addPurchaseLines(period,aggregateIngredients(monthDays.slice(first,last),"fresh"));fresh.append(period)}}else addPurchaseLines(fresh,aggregateIngredients(days,"fresh"));container.append(fresh);
+const prep=el("details","card content-card");prep.open=true;prep.append(el("summary","","🍗 Мясо и рыба — к дням готовки"));
+prep.append(el("p","subtle","Для воскресной и средовой готовки. Охлаждённую птицу обычно используют за 1–2 суток; при ранней покупке сразу замораживай. Размораживай в холодильнике, не на столе."));
+const anchors=[-1,...monthDays.filter(d=>d%7===2||d%7===6)];
+const relevant=anchors.filter(a=>{const targets=batchDays(a);return scope<0||targets.some(d=>d>=weekStart&&d<weekEnd)||a>=weekStart&&a<weekEnd});
+for(const anchor of relevant){const amounts=new Map();for(const d of batchDays(anchor)){for(const recipeId of plan[d].slice(1)){for(const [name,amount]of R[recipeId].ingredients){if(!COOKING_DAY.has(name))continue;amounts.set(name,(amounts.get(name)||0)+amount*settings.people)}}}
+if(!amounts.size)continue;const batch=el("details","");batch.append(el("summary","",batchName(anchor)));addPurchaseLines(batch,amounts);prep.append(batch)}
+container.append(prep);
+container.append(el("p","note","План закупок — рекомендация, не гарантия сохранности продуктов: ориентируйся на срок годности, температуру холодильника, размер упаковки и то, что уже есть дома. Готовые порции охлаждай быстро, часть сразу замораживай."));
+}
 function renderShop(){const total=monthTotal(),homeBudget=Math.max(0,settings.budget-EXTERNAL_FOOD),progress=homeBudget>0?total/homeBudget:Infinity;$("#total").textContent=money(total);$("#budgetcompare").textContent="На домашнюю еду "+money(homeBudget)+" из "+money(settings.budget)+" общего бюджета · "+(progress<=1?"остаток "+money(homeBudget-total):"превышение "+money(total-homeBudget));$("#budgetcompare").classList.toggle("warning",progress>1);$("#shoppeople").textContent="Продукты на "+settings.people+" "+plural(settings.people)+". Галочки связаны между месяцем и неделями.";
 const storeSelect=$("#store-select");storeSelect.value=chosenStore;
 $("#store-info").textContent=P.stores[chosenStore]?.notes||"Ориентировочные цены.";chips($("#shopweeks"),[[-1,"30 дней"],...[0,1,2,3,4].map(i=>[i,"Неделя "+(i+1)])],scope,c=>{scope=c;renderShop()});const start=scope===-1?0:scope*7,end=scope===-1?30:Math.min(30,start+7),tally=new Map();plan.slice(start,end).flat().forEach(i=>R[i].ingredients.forEach(([name,q,price])=>{const prev=tally.get(name)||[0,0];tally.set(name,[prev[0]+q*settings.people,prev[1]+q*ingredientPrice(name,price)*settings.people])}));let entries=[...tally].sort((a,b)=>a[0].localeCompare(b[0],"ru"));$("#periodcost").textContent="Стоимость периода: "+money(entries.reduce((s,x)=>s+x[1][1],0));$("#shopping-list").replaceChildren(...entries.map(([name,[number,price]])=>{
@@ -80,7 +104,7 @@ label.append(checkbox,el("span","",name+" · "+qty(name,number)+" "+unit(name)))
 row.append(label,el("strong","",money(price)));return row}));
 function updateProgress(){const marked=entries.filter(([name])=>checkedStatus(scope,name)).length;$("#checkedcount").textContent="Куплено "+marked+" из "+entries.length}
 updateProgress();
-$("#emptyshopping").hidden=entries.length>0}
+$("#emptyshopping").hidden=entries.length>0;renderPurchaseGuide()}
 function renderSettings(){ $("#people").value=settings.people;$("#budget").value=settings.budget;$("#settings-total").textContent="На домашнюю еду: "+money(Math.max(0,settings.budget-EXTERNAL_FOOD))+" (остальное: доставка 3 × 1 200 ₽, кафе 2 × 1 300 ₽). Примерная стоимость текущего домашнего меню: "+money(monthTotal());$("#install-instructions").textContent=/iPad|iPhone|iPod/.test(navigator.userAgent)?"В Safari нажми «Поделиться» → «На экран Домой» → «Добавить». Если пункта нет, открой сайт именно в Safari.":"На iPhone открой сайт в Safari → «Поделиться» → «На экран Домой». На Android в Chrome выбери «Установить приложение»."}
 function render(){ $$(".tab").forEach(b=>{const yes=b.dataset.tab===tab;b.classList.toggle("active",yes);b.setAttribute("aria-selected",String(yes))});$$(".screen").forEach(s=>s.hidden=s.id!==tab);$("#hero-people").textContent=settings.people+" "+plural(settings.people);$("#hero-budget").textContent=money(settings.budget);if(tab==="menu")renderMenu();if(tab==="recipes")renderCatalog();if(tab==="shop")renderShop();if(tab==="settings")renderSettings()}
 $$(".tab").forEach(b=>b.addEventListener("click",()=>{editSlot=null;goto(b.dataset.tab)}));$("#search").addEventListener("input",renderCatalog);$("#favfilter").addEventListener("click",()=>{onlyFavorites=!onlyFavorites;renderCatalog()});$("#modal-close").addEventListener("click",()=>$("#recipe-modal").close());$("#recipe-modal").addEventListener("click",e=>{if(e.target.id==="recipe-modal")e.currentTarget.close()});
