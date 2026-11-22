@@ -4,14 +4,42 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#e6f0dd"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Питание">
 <meta name="description" content="Меню на 30 дней, пошаговые рецепты и удобный список покупок для семьи">
-<link rel="icon" type="image/svg+xml" href="./icon.svg"><link rel="apple-touch-icon" href="./icon.svg"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./styles.css">
+<link rel="icon" type="image/svg+xml" href="./icon.svg"><link rel="apple-touch-icon" href="./icon.svg"><link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./styles-v10.css">
 <title>Питание без суеты — меню на месяц</title>
-<script defer src="./recipes.js"></script><script defer src="./pricing.js"></script><script defer src="./analytics.js"></script><script defer src="./app.js"></script>
+<script>
+(function(){
+  // An older service worker may serve incompatible files on iPhone.
+  // Remove only cache storage, never localStorage (which contains menus and purchases).
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      return Promise.all(regs.map(function(reg){return reg.unregister()}));
+    }).catch(function(){});
+  }
+  if ("caches" in window) {
+    caches.keys().then(function(keys){
+      return Promise.all(keys.filter(function(k){return k.startsWith("pbs-")}).map(function(k){return caches.delete(k)}));
+    }).catch(function(){});
+  }
+  window.addEventListener("load",function(){
+    setTimeout(function(){
+      if(document.documentElement.dataset.appReady!=="true"){
+        var existing=document.getElementById("app-warning");
+        if(existing)existing.hidden=false;
+      }
+    },1800);
+  });
+})();
+</script>
+<script defer src="./recipes-v10.js"></script><script defer src="./pricing-v10.js"></script><script defer src="./analytics-v10.js"></script><script defer src="./app-v10.js"></script>
 </head><body>
 <header class="app-header"><div class="app-header-inner"><button id="brand-home" type="button" class="brand-wordmark" aria-label="Главная"><span class="brand-mark">✳</span><span>питание<span class="brand-dot">.</span><small>без суеты</small></span></button><div class="header-tools"><span class="header-date" id="header-date"></span><button id="settings-open" type="button" class="header-settings" aria-label="Настройки">⚙</button></div></div></header>
 <main>
 <section class="screen" id="home"><div class="home-top"><div><p class="eyebrow" id="home-day-label">ВАШ ДЕНЬ</p><h1 class="home-title" id="home-greeting">Сегодня всё под контролем.</h1><p class="home-subtitle">Не нужно держать всё в голове — главное уже здесь.</p></div><span class="home-spark">✳</span></div>
-<div class="home-focus" id="home-focus"></div>
+<div id="app-warning" hidden style="background:#fff5db;border:1px solid #ebc987;color:#594627;padding:15px;border-radius:15px;margin:16px 0;line-height:1.5">
+<strong>Приложение не смогло загрузить данные.</strong>
+<p>Это проблема загрузки файлов, а не твоих покупок. Открой страницу в новой вкладке Safari. Данные не удаляй.</p>
+<button type="button" onclick="location.reload()" style="background:#234b38;color:white">Повторить загрузку</button>
+</div><div class="home-focus" id="home-focus"></div>
 <div class="section-head home-section-head"><h2>Сегодня в меню</h2><button type="button" id="home-menu-link" class="text-button">Всё меню →</button></div>
 <div id="home-meals" class="home-meal-list"></div>
 <div class="home-tomorrow" id="home-tomorrow"></div>
