@@ -36,7 +36,7 @@ if(!load("pbs-checks-sync-migrated",false)){
 }let favorites=load(K.favorites,[]);if(!Array.isArray(favorites))favorites=[];
 let day=0,week=0,scope=0,tab="home",category="Все",onlyFavorites=false,editSlot=null;
 const localISO=dt=>{const d=new Date(dt);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)};
-let planStart=load("pbs-plan-start",null);if(!/^\d{4}-\d{2}-\d{2}$/.test(planStart||"")){planStart=localISO(new Date());try{localStorage.setItem("pbs-plan-start",JSON.stringify(planStart))}catch(e){}}
+let planStart=load("pbs-plan-start",null);if(!/^\d{4}-\d{2}-\d{2}$/.test(planStart||"")){const monday=new Date();monday.setDate(monday.getDate()-((monday.getDay()+6)%7));planStart=localISO(monday);try{localStorage.setItem("pbs-plan-start",JSON.stringify(planStart))}catch(e){}}
 function planDayOffset(offset=0){const now=new Date(),base=new Date(planStart+"T12:00:00");now.setHours(12,0,0,0);return Math.round((now-base)/86400000)+offset}
 const humanDate=d=>new Intl.DateTimeFormat("ru-RU",{day:"numeric",month:"long",weekday:"long"}).format(d);
 
@@ -62,8 +62,8 @@ const h=$("#home-greeting");const hour=now.getHours();h.textContent=(hour<12?"Д
 if(!inRange){h.textContent=index<0?"Меню ещё впереди.":"Время обновить план.";const box=el("div","focus-content");box.append(el("span","focus-kicker","ПЛАН НА 30 ДНЕЙ"),el("h2","","Выбери дату начала меню"),el("p","","Настрой календарь — и здесь появятся актуальные дела на сегодня и завтра."),button("Открыть настройки",()=>goto("settings"),"focus-button"));focus.append(box);$("#home-tomorrow").hidden=true;return}
 $("#home-tomorrow").hidden=false;
 const wd=index%7,prep=wd===2||wd===6,categoryLabel=prep?"ВРЕМЯ ГОТОВИТЬ":wd===1||wd===5?"ПОДГОТОВКА К ГОТОВКЕ":"СЕГОДНЯ МОЖНО НЕ ГОТОВИТЬ";
-const title=prep?"Готовим на несколько дней":wd===1||wd===5?"Проверь продукты на завтра":"Еда уже запланирована";
-let description=prep?"Сегодня подготовь обеды и ужины сразу на несколько порций. Загляни в список покупок и план заготовок.":wd===1||wd===5?"Завтра день готовки. Посмотри список ингредиентов, чтобы ничего не забыть.":"Сегодня достаточно быстрого завтрака и готовых порций. Освободи время для себя.";
+const title=prep?"Готовим на несколько дней":wd===1||wd===5?"Проверь продукты на завтра":"Сегодня без большой готовки";
+let description=prep?"Сегодня подготовь обеды и ужины сразу на несколько порций. Загляни в список покупок и план заготовок.":wd===1||wd===5?"Завтра день готовки. Посмотри список ингредиентов, чтобы ничего не забыть.":"Если заготовки готовы, достаточно разогреть обед и ужин. Большая готовка сегодня не запланирована.";
 // Ground shopping status in the current week's checked items.
 const expected=new Set(plan.slice(index,Math.min(index+2,30)).flat().flatMap(id=>R[id]?.ingredients.map(a=>a[0])||[]));
 const pending=[...expected].filter(name=>!checkedStatus(Math.floor(index/7),name));const line=el("div","focus-content");
@@ -140,7 +140,7 @@ $("#settings-open").addEventListener("click",()=>goto("settings"));
 $("#home-menu-link").addEventListener("click",()=>{let i=planDayOffset();if(i>=0&&i<30){day=i;week=Math.floor(i/7)}goto("menu")});
 $("#search").addEventListener("input",renderCatalog);$("#favfilter").addEventListener("click",()=>{onlyFavorites=!onlyFavorites;renderCatalog()});$("#modal-close").addEventListener("click",()=>$("#recipe-modal").close());$("#recipe-modal").addEventListener("click",e=>{if(e.target.id==="recipe-modal")e.currentTarget.close()});
 $("#save-settings").addEventListener("click",()=>{const people=Number($("#people").value),budget=Number($("#budget").value);if(!Number.isInteger(people)||people<1||people>12||!Number.isFinite(budget)||budget<1){alert("Укажи от 1 до 12 человек и бюджет больше нуля.");return}settings={people,budget:Math.round(budget)};save(K.settings,settings);
-const date=$("#plan-start").value;if(/^\d{4}-\d{2}-\d{2}$/.test(date)){planStart=date;save("pbs-plan-start",planStart)}
+const date=$("#plan-start").value;if(/^\d{4}-\d{2}-\d{2}$/.test(date)){const d=new Date(date+"T12:00:00");if(d.getDay()!==1){alert("Выбери понедельник: недельный план готовки построен с понедельника по воскресенье.");return}planStart=date;save("pbs-plan-start",planStart)}
 render();$("#saved").textContent="✓ Настройки сохранены"});
 $("#reset").addEventListener("click",()=>{if(confirm("Вернуть меню с готовкой по воскресеньям и средам на все 30 дней?")){plan=defaults.map(x=>[...x]);save(K.plan,plan);goto("menu")}});
 $("#store-select").addEventListener("change",e=>{chosenStore=e.target.value;save("pbs-store-v1",chosenStore);renderShop()});
