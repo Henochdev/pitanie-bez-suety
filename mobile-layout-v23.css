@@ -82,3 +82,52 @@
   .shift-settings .formrow>.field{min-width:0!important}
   .shift-settings .formrow input{min-width:0!important;max-width:100%!important}
 }
+
+/* v24 — reserve real right-hand breathing room on iPhone WebKit.
+   Some native date/time inputs use an intrinsic inline size that can overflow
+   a flex/grid field even with width:100%. We cap the control explicitly. */
+@media(max-width:700px){
+  #settings .shift-settings{
+    padding-inline:18px 30px!important;
+    box-sizing:border-box!important;
+  }
+  #settings .shift-settings>.field,
+  #settings .shift-settings .formrow,
+  #settings .shift-settings .formrow>.field{
+    box-sizing:border-box!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin-right:0!important;
+  }
+  #settings .shift-settings .field>input,
+  #settings .shift-settings input.input,
+  #settings .shift-settings input[type="date"],
+  #settings .shift-settings input[type="time"],
+  #settings .shift-settings input[type="number"]{
+    box-sizing:border-box!important;
+    width:calc(100% - 12px)!important;
+    max-width:calc(100% - 12px)!important;
+    min-width:0!important;
+    flex:none!important;
+    margin-inline:0!important;
+    border-radius:14px!important;
+  }
+  #settings .shift-settings #save-work,
+  #settings .shift-settings .shift-build{
+    box-sizing:border-box!important;
+    max-width:calc(100% - 12px)!important;
+    width:calc(100% - 12px)!important;
+  }
+  #settings .shift-settings .shift-overview{
+    width:calc(100% - 12px)!important;
+    max-width:calc(100% - 12px)!important;
+    min-width:0!important;
+  }
+  #settings .card:not(.shift-settings) .field>input,
+  #settings .card:not(.shift-settings) .field>select{
+    box-sizing:border-box!important;
+    width:calc(100% - 8px)!important;
+    max-width:calc(100% - 8px)!important;
+    min-width:0!important;
+  }
+}
