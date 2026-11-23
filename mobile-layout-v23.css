@@ -1,0 +1,84 @@
+/* v23: targeted iPhone sizing fix for Work Schedule and other form cards.
+   Loaded last, after all previously shipped layout rules. */
+@media(max-width:700px){
+  .shift-settings{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    padding:20px 18px!important;
+    overflow:hidden!important;
+    border-radius:22px;
+  }
+  .shift-settings .field,
+  .shift-settings>.field,
+  .shift-settings .formrow,
+  .shift-settings .formrow>.field{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    min-width:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+  .shift-settings .formrow{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:20px!important;
+    margin:18px 0 20px!important;
+  }
+  .shift-settings .formrow>.field{margin:0!important}
+  .shift-settings .field>label{display:block!important;margin:0 0 4px!important;line-height:1.4!important}
+  .shift-settings .field>input,
+  .shift-settings input.input,
+  .shift-settings input[type="date"],
+  .shift-settings input[type="time"],
+  .shift-settings input[type="number"]{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:54px!important;
+    min-height:54px!important;
+    padding:10px 14px!important;
+    border:1px solid #DAC7B6!important;
+    border-radius:14px!important;
+    font-size:16px!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    background:#FFFDFC!important;
+    color:#49362A!important;
+    -webkit-box-sizing:border-box!important;
+  }
+  .shift-settings input::-webkit-date-and-time-value{text-align:left;min-height:1em}
+  .shift-settings input::-webkit-datetime-edit{display:block;padding:0;min-width:0}
+  .shift-settings input[type="time"]::-webkit-datetime-edit{padding:0}
+  .shift-settings .field>.subtle,
+  .shift-settings .field>p{
+    margin:7px 0 0!important;
+    line-height:1.55!important;
+  }
+  .shift-settings>.field{margin:0 0 20px!important}
+  .shift-settings .shift-title{margin:0 0 23px!important}
+  .shift-settings #save-work{
+    width:100%!important;
+    max-width:100%!important;
+    padding:14px 13px!important;
+    margin:3px 0 0!important;
+    min-height:54px;
+  }
+  .shift-settings .shift-build{margin-top:16px!important;gap:12px!important}
+  .shift-settings #work-save-status{margin:16px 0 0!important;line-height:1.5}
+  .shift-settings .shift-overview{padding-top:22px!important;margin-top:22px!important}
+  #settings>.content-card,
+  #settings>.card{min-width:0;max-width:100%;overflow:hidden}
+  #settings .card .formrow{min-width:0}
+  #settings .card .field{min-width:0;max-width:100%}
+  #settings .card .field>input{max-width:100%;min-width:0}
+}
+@media(min-width:701px){
+  .shift-settings .formrow{gap:20px!important}
+  .shift-settings .formrow>.field{min-width:0!important}
+  .shift-settings .formrow input{min-width:0!important;max-width:100%!important}
+}
