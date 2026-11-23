@@ -1,0 +1,84 @@
+/* v22 - Unified iPhone forms and layout safety layer.
+   Loaded LAST so legacy rules cannot squeeze mobile fields. */
+html,body{width:100%;min-width:0;max-width:100%;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+main,.screen,.card,.content-card,.modal-in,.field,.formrow,.shift-settings,.shift-overview,.shift-detail,.shift-title,.shift-build,.logo-upload-layout,.logo-upload-text{min-width:0;max-width:100%}
+.screen{overflow-wrap:anywhere}
+.card,.content-card{overflow-wrap:anywhere}
+.formrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.formrow>.field,.shift-settings>.field,.shift-settings>.formrow,.modal-in .field{min-width:0;width:100%;max-width:100%}
+.field{display:flex;flex-direction:column;align-items:stretch;gap:7px}
+.field>label{display:block;position:static;max-width:100%;font-size:13px;font-weight:650;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.field>input,.field>select,.field>.input,
+.modal-in input,.modal-in select,.shift-settings input,.shift-settings select{
+ display:block;position:static;width:100%;min-width:0;max-width:100%;
+ box-sizing:border-box;min-height:48px;margin:0;
+ padding:11px 12px;border-radius:13px;
+ background:#FFFDFC;color:#4A342A;border:1px solid #DCC8B7;
+ font-size:16px;line-height:1.35;letter-spacing:normal
+}
+.field input[type="date"],.field input[type="time"]{appearance:auto;-webkit-appearance:auto;min-height:50px;max-width:100%;min-width:0}
+.field>p,.field>.subtle{margin:0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+input::placeholder{opacity:1;color:#A99A90;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button{max-width:100%}
+.shift-title{display:grid;grid-template-columns:58px minmax(0,1fr);gap:12px;align-items:center}
+.shift-title>div{min-width:0}
+.shift-title strong{display:block;line-height:1.35;overflow-wrap:anywhere}
+.shift-chip{width:56px;height:56px;min-width:56px;border-radius:16px}
+.shift-settings{padding:17px}
+.shift-settings .formrow{margin-top:4px;margin-bottom:17px}
+.shift-settings>button.wide{width:100%;min-width:0;line-height:1.4;white-space:normal}
+.shift-build{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.shift-build>button{min-width:0;width:100%;white-space:normal;line-height:1.35;min-height:48px}
+.shift-home-badge{display:flex;flex-direction:column;align-items:stretch;gap:9px;width:100%;max-width:100%;margin-top:18px}
+.shift-pill{display:block!important;width:100%;max-width:100%;font-size:13px;line-height:1.55;font-weight:600;white-space:normal;overflow-wrap:anywhere;padding:12px 14px}
+.shift-confirm{display:block;width:100%;max-width:100%;white-space:normal;line-height:1.35;padding:12px 14px;font-size:13px}
+.home-top>div{min-width:0}
+.home-focus,.focus-content,.focus-summary{min-width:0;max-width:100%}
+.work-calendar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:100%;align-items:stretch}
+.work-calendar>.shift-day{position:relative;display:flex!important;flex-direction:column!important;justify-content:center;align-items:flex-start!important;gap:5px!important;min-width:0;width:100%;min-height:82px;height:auto;padding:12px 13px!important;text-align:left;white-space:normal;overflow:hidden;border-radius:15px}
+.shift-day .shift-date{display:block;position:static;font-size:12px;line-height:1.25;letter-spacing:0;font-weight:600;white-space:normal}
+.shift-day strong{display:block;position:static;margin:0;font-size:14px;line-height:1.35;letter-spacing:0;font-weight:750;white-space:normal;overflow-wrap:anywhere}
+.shift-detail{padding:15px;overflow-wrap:anywhere}
+.shift-detail .countline{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px}
+.shift-detail .countline>*{min-width:0}
+.shift-detail .countline span{flex:1 1 55%}
+.shift-detail .countline strong{flex:0 1 auto;text-align:right}
+dialog{position:fixed!important;max-width:calc(100vw - 24px)!important;width:min(480px,calc(100vw - 24px))!important;max-height:calc(100dvh - 32px)!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;margin:auto!important;border-radius:24px!important}
+dialog::backdrop{background:rgba(39,25,20,.52)}
+dialog .modal-in{padding:20px!important;max-width:100%}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.modal-head h2{font-size:25px;line-height:1.2;min-width:0;margin:0;overflow-wrap:anywhere}
+.modal-head button{display:grid;flex:none;place-items:center;width:43px;height:43px;min-width:43px;min-height:43px;padding:0;font-size:25px;border-radius:13px}
+#purchase-form{display:flex!important;flex-direction:column;gap:16px;margin:0}
+#purchase-form .formrow{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+#purchase-form .field{width:100%;min-width:0}
+#purchase-form .note{margin:0;padding:14px;border-radius:15px;line-height:1.5}
+#purchase-form>.wide{min-height:50px}
+#recipe-modal .detail-photo{max-width:100%;height:auto;aspect-ratio:4/3}
+#recipe-modal .ingredient-row{display:flex;flex-wrap:wrap;gap:8px}
+#recipe-modal .ingredient-row>*{min-width:0;overflow-wrap:anywhere}
+#new-purchase,#export-purchases{white-space:normal}
+.logo-upload-layout{display:grid;grid-template-columns:88px minmax(0,1fr);gap:14px}
+.logo-upload-text{min-width:0}
+.logo-upload-text .logo-file-label,.logo-upload-text .logo-reset{white-space:normal;line-height:1.4;text-align:center}
+@media(max-width:600px){
+ .screen{padding-bottom:25px}
+ .formrow{grid-template-columns:minmax(0,1fr);gap:16px}
+ .shift-settings .formrow{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .shift-settings .formrow input[type="time"]{padding-left:8px;padding-right:5px;font-size:15px}
+ .shift-overview{width:100%}
+ .shift-build{grid-template-columns:minmax(0,1fr)}
+ .shift-build p{grid-column:auto}
+ .shift-build>button{min-height:48px}
+ .logo-upload-layout{grid-template-columns:76px minmax(0,1fr);gap:12px}
+ dialog .modal-in{padding:18px!important}
+}
+@media(max-width:370px){
+ .shift-settings .formrow{grid-template-columns:minmax(0,1fr)}
+ .work-calendar{gap:7px}
+ .work-calendar>.shift-day{padding:10px!important;min-height:76px}
+ .shift-day strong{font-size:13px}
+ .shift-title{grid-template-columns:49px minmax(0,1fr)}
+ .shift-chip{width:47px;height:47px;min-width:47px;font-size:16px}
+}
